@@ -1,7 +1,7 @@
 from computations.inplace import (make_getname, Copy, inplace,
         purify_one, tokenize_one, ExprToken, tokenize,
         copies_one, purify, inplace_tokenize, remove_single_copies,
-        inplace_compile, IOpComp, valid_name)
+        inplace_compile, TokenComputation, valid_name)
 from computations.core import CompositeComputation
 
 from computations.example import inc, flipflop
@@ -117,16 +117,16 @@ def test_copy_keyword():
     assert any(c.op == Copy2 for c in purecomp.computations)
 
 def test_inplace_tokenize():
-    comp     = IOpComp(inci(1), [1], [2])
-    expected = IOpComp(inci(1), [1], [1])
+    comp     = TokenComputation(inci(1), [1], [2])
+    expected = TokenComputation(inci(1), [1], [1])
     assert inplace_tokenize(comp) == expected
 
-    comp     = IOpComp(inci(1), [1], [2]) + IOpComp(inci(2), [2], [3])
-    expected = IOpComp(inci(1), [1], [1]) + IOpComp(inci(2), [1], [1])
+    comp     = TokenComputation(inci(1), [1], [2]) + TokenComputation(inci(2), [2], [3])
+    expected = TokenComputation(inci(1), [1], [1]) + TokenComputation(inci(2), [1], [1])
     assert inplace_tokenize(comp) == expected
 
 def test_remove_single_copies():
-    comp     = (IOpComp(inci(1), ['1'], ['2']) +
-                IOpComp(Copy(1), ['0'], ['1']))
-    expected =  IOpComp(inci(1), ['0'], ['2'])
+    comp     = (TokenComputation(inci(1), ['1'], ['2']) +
+                TokenComputation(Copy(1), ['0'], ['1']))
+    expected =  TokenComputation(inci(1), ['0'], ['2'])
     assert remove_single_copies(comp) == expected

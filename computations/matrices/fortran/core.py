@@ -1,5 +1,5 @@
 from computations.core import Computation, unique, CompositeComputation
-from computations.inplace import IOpComp, ExprToken
+from computations.inplace import TokenComputation, ExprToken
 from computations.util import groupby, remove
 from functools import partial
 from sympy import MatrixExpr, Expr, ZeroMatrix
@@ -7,7 +7,7 @@ from sympy import MatrixExpr, Expr, ZeroMatrix
 with open('computations/matrices/fortran/template.f90') as f:
     template = f.read()
 
-class FortranPrintableIOpComp(object):
+class FortranPrintableTokenComputation(object):
     def fortran_footer(self, *args):
         return self.comp.fortran_footer(*args)
     def fortran_header(self, *args):
@@ -53,7 +53,7 @@ def update_class(old, new):
             setattr(old, k, v)
 
 update_class(Computation, FortranPrintableComputation)
-update_class(IOpComp, FortranPrintableIOpComp)
+update_class(TokenComputation, FortranPrintableTokenComputation)
 
 def join(L):
     return '  ' + '\n  '.join([x for x in L if x])

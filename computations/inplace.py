@@ -77,7 +77,7 @@ def copies_one(comp, getname, **kwargs):
         requested = inp.token if '_' not in inp.token else None
         newtoken = getname((inp.expr, out.expr), requested)
         out = ExprToken(inp.expr, newtoken)
-        return IOpComp(copy(inp.expr), [inp.token], [newtoken])
+        return TokenComputation(copy(inp.expr), [inp.token], [newtoken])
 
     return [new_comp(comp.inputs[v], comp.outputs[k])
                  for k, v in inplace(comp).items()]
@@ -97,7 +97,7 @@ def purify_one(comp, getname, **kwargs):
 
     input_tokens = tuple(d[i] if i in d else i for i in comp.input_tokens)
 
-    newcomp = IOpComp(comp.comp, input_tokens, comp.output_tokens)  #.canonicalize() ??
+    newcomp = TokenComputation(comp.comp, input_tokens, comp.output_tokens)  #.canonicalize() ??
 
     return CompositeComputation(newcomp, *copies)
 
@@ -145,7 +145,7 @@ def tokenize_one(mathcomp, tokenizer):
     See Also
         tokenize
     """
-    return IOpComp(mathcomp, map(tokenizer, mathcomp.inputs),
+    return TokenComputation(mathcomp, map(tokenizer, mathcomp.inputs),
                              map(tokenizer, mathcomp.outputs))
 
 def tokenize(mathcomp, tokenizer):
@@ -172,7 +172,7 @@ def replace_tokens(comp, switch):
         return comp
     intoks = [switch.get(t, t) for t in comp.input_tokens]
     outtoks = [switch.get(t, t) for t in comp.output_tokens]
-    return IOpComp(comp.comp, intoks, outtoks)
+    return TokenComputation(comp.comp, intoks, outtoks)
 
 def inplace_tokenize(comp):
     """ Change tokens to be consistent with inplace dictionaries """
@@ -235,8 +235,7 @@ def inplace_compile(comp, **kwargs):
     stage4 = inplace_tokenize(stage3)
     return stage4
 
-class IOpComp(Computation):
-    """ Inplace version of OpComp """
+class TokenComputation(Computation):
 
     def __init__(self, comp, input_tokens, output_tokens):
         self.comp = comp
