@@ -74,3 +74,14 @@ def merge(*dicts):
     for d in dicts:
         out.update(d)
     return out
+
+
+def groupby(f, coll):
+    d = dict()
+    for item in coll:
+        key = f(item)
+        if key not in d:
+            d[key] = []
+        d[key].append(item)
+    return d
+

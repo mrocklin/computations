@@ -1,4 +1,4 @@
-from computations.util import toposort, unique, reverse_dict, merge
+from computations.util import toposort, unique, reverse_dict, merge, groupby
 
 
 def test_unique():
@@ -19,3 +19,9 @@ def test_reverse_dict():
 
 def test_merge():
     assert merge({1: 2}, {2: 3}, {3: 4, 1: 5}) == {1: 5, 2: 3, 3: 4}
+
+def test_groupby():
+    d = groupby(lambda x: x%2, range(10))
+    assert set(d.keys()) == set((0, 1))
+    assert set(d[0]) == set((0, 2, 4, 6, 8))
+    assert set(d[1]) == set((1, 3, 5, 7, 9))
