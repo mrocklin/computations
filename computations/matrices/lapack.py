@@ -63,7 +63,7 @@ class LASWP(LAPACK):
     def codemap(self, names, assumptions=()):
         varnames = 'A IPIV'.split()
 
-        Q, IPIV  self.args
+        Q, IPIV = self.args
         assert (isinstance(Q, MatMul) and
                 isinstance(Q.args[0], PermutationMatrix))
         A = MatMul(*Q.args[1:])  # A is everything other than the permutation
