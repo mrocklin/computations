@@ -67,3 +67,10 @@ def reverse_dict(d):
                 result[val] = set()
             result[val].add(key)
     return result
+
+def merge(*dicts):
+    """ Merge several dictionaries """
+    out = dict()
+    for d in dicts:
+        out.update(d)
+    return out
