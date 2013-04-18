@@ -52,6 +52,7 @@ class CompositeComputation(Computation):
     def __new__(cls, *computations):
         computations = tuple(unique(computations))
         computations = exhaust(rm_identity)(computations)
+        computations = exhaust(flatten)(computations)
         if len(computations) == 1:
             return computations[0]
         else:
@@ -132,6 +133,13 @@ def rm_identity(computations):
                 newident = Identity(*vars)
                 return (newident,) + tuple(others)
     return computations
+
+def flatten(computations):
+    for c in computations:
+        if isinstance(c, CompositeComputation):
+            return tuple(remove(c.__eq__, computations)) + tuple(c.computations)
+    return computations
+
 
 class Identity(Computation):
     """ An Identity computation """
