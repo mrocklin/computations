@@ -32,6 +32,7 @@ def test_getname():
 
 def test_valid_name():
     assert valid_name('hello')
+    assert not valid_name('hello(5)')
     assert not valid_name('123')
 
 def test_inplace():

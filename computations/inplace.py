@@ -1,9 +1,15 @@
 from computations.core import Computation, CompositeComputation, Identity
 from functools import partial
+import re
 
 
 def valid_name(n):
-    return n and isinstance(n, str) and n[0].isalpha()
+    if not n or not isinstance(n, str):
+        return False
+    match = re.search('[a-zA-Z]\w*', n)
+    if not match or match.group() != n:
+        return False
+    return True
 
 def make_getname():
     """ Make a new tokenizer
