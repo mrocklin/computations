@@ -11,7 +11,7 @@ outputs = [X*y]
 mathcomp = GEMM(1.0, X, y, 0.0, ZeroMatrix(n, 1))
 ic = inplace_compile(mathcomp)
 types = {q: 'real*8' for q in [X, y, X*y]}
-s = generate_fortran(ic, inputs, outputs, types, 'f')
+s = generate(ic, inputs, outputs, types, 'f')
 
 def test_simple():
     assert isinstance(s, str)

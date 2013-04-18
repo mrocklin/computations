@@ -58,7 +58,7 @@ update_class(IOpComp, FortranPrintableIOpComp)
 def join(L):
     return '  ' + '\n  '.join([x for x in L if x])
 
-def generate_fortran(comp, inputs, outputs, types, name='f'):
+def generate(comp, inputs, outputs, types, name='f'):
     """ Generate Fortran code from a computation
 
     comp - a tokenized computation from inplace_compile
