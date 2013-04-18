@@ -1,4 +1,5 @@
 from computations.core import Computation
+from computations.matrices.core import MatrixCall
 from sympy.matrices.expressions.fourier import DFT
 from sympy import Basic
 
@@ -19,14 +20,15 @@ class Plan(Basic):
         return '! destroy ' + token
 
 
-class FFTW(Computation):
+class FFTW(MatrixCall):
     @property
     def inputs(self):
         return (self.args[0],)
 
     @property
     def outputs(self):
-        return (DFT(self.inputs[0].shape[0]) * self.inputs[0], Plan() )
+        x = self.inputs[0]
+        return (DFT(x.shape[0]) * x, Plan() )
 
     def fortran_include_statements(self):
         return ["include 'fftw3.f03'"]
