@@ -1,4 +1,4 @@
-from sympy.computations.matrices.lapack import GESV, POSV, IPIV, LASWP
+from computations.matrices.lapack import GESV, POSV, IPIV, LASWP
 from sympy.matrices.expressions import MatrixSymbol, PermutationMatrix
 from sympy.core import Symbol
 from sympy import Q
