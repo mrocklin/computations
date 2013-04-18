@@ -28,8 +28,11 @@ class FFTW(Computation):
     def outputs(self):
         return (DFT(self.inputs[0].shape[0]) * self.inputs[0], Plan() )
 
-    def fortran_function_interface(self):
-        return ""
+    def fortran_include_statements(self):
+        return ["include 'fftw3.f03'"]
+
+    def fortran_use_statements(self):
+       return ["use, intrinsic :: iso_c_binding"]
 
     def fortran_call(self, input_names, output_names):
         d = {'plan_name': output_names[1],
