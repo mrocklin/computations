@@ -14,7 +14,7 @@ def is_number(x):
 def remove_numbers(coll):
     """ Remove numbers from a collection
 
-    >>> from sympy.computations.matrices.core import remove_numbers
+    >>> from computations.matrices.core import remove_numbers
     >>> remove_numbers([1, 'x', 5, 'y'])
     ['x', 'y']
     """
