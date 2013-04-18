@@ -1,4 +1,5 @@
-from computations.util import toposort, unique, reverse_dict, merge, groupby
+from computations.util import (toposort, unique, reverse_dict, merge, groupby,
+        remove)
 
 
 def test_unique():
@@ -25,3 +26,6 @@ def test_groupby():
     assert set(d.keys()) == set((0, 1))
     assert set(d[0]) == set((0, 2, 4, 6, 8))
     assert set(d[1]) == set((1, 3, 5, 7, 9))
+
+def test_remove():
+    assert remove(str.islower, 'AaBb') == ['A', 'B']

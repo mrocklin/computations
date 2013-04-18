@@ -85,3 +85,5 @@ def groupby(f, coll):
         d[key].append(item)
     return d
 
+def remove(predicate, collection):
+    return [item for item in collection if not predicate(item)]
