@@ -14,6 +14,8 @@ class FortranPrintableTokenComputation(object):
         return self.comp.fortran_header(*args)
     def fortran_use_statements(self):
         return self.comp.fortran_use_statements()
+    def fortran_include_statements(self):
+        return self.comp.fortran_include_statements()
 
 
 class FortranPrintableComputation(object):

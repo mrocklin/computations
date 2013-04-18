@@ -21,4 +21,5 @@ def test_code_generation():
     s = generate(ic, [x], [DFT(n)*x], types, 'f')
 
     assert 'use, intrinsic :: iso_c_binding' in s
+    assert "include 'fftw3.f03'" in s
     assert isinstance(s, str)
