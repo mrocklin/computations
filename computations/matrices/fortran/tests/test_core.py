@@ -1,5 +1,5 @@
 from computations.matrices.fortran.core import *
-from sympy import MatrixSymbol, Symbol
+from sympy import MatrixSymbol, Symbol, Q
 from computations.inplace import inplace_compile
 from computations.matrices.blas import GEMM
 
@@ -10,8 +10,8 @@ inputs = [X, y]
 outputs = [X*y]
 mathcomp = GEMM(1.0, X, y, 0.0, ZeroMatrix(n, 1))
 ic = inplace_compile(mathcomp)
-types = {q: 'real*8' for q in [X, y, X*y]}
-s = generate(ic, inputs, outputs, types, 'f')
+with assuming(Q.real(X), Q.real(y)):
+    s = generate(ic, inputs, outputs, name='f')
 
 def test_simple():
     assert isinstance(s, str)
@@ -51,3 +51,9 @@ def test_allocate_array():
     v = ExprToken(X, 'Xvar')
     assert deallocate_array(v, ['Xvar'], []) == ''
     assert deallocate_array(v, [], []) == 'deallocate(Xvar)'
+
+def test_dtype_of():
+    X = MatrixSymbol('X', n, n)
+    assert 'integer' in dtype_of(X, Q.integer(X))
+    assert 'real' in dtype_of(X, Q.real(X))
+    assert 'complex' in dtype_of(X, Q.complex(X))

@@ -2,7 +2,7 @@ from computations.core import Computation, unique, CompositeComputation
 from computations.inplace import TokenComputation, ExprToken
 from computations.util import groupby, remove
 from functools import partial
-from sympy import MatrixExpr, Expr, ZeroMatrix
+from sympy import MatrixExpr, Expr, ZeroMatrix, assuming, ask, Q
 
 with open('computations/matrices/fortran/template.f90') as f:
     template = f.read()
@@ -60,13 +60,25 @@ update_class(TokenComputation, FortranPrintableTokenComputation)
 def join(L):
     return '  ' + '\n  '.join([x for x in L if x])
 
-def generate(comp, inputs, outputs, types, name='f'):
+def dtype_of(expr, *assumptions):
+    with assuming(*assumptions):
+        if ask(Q.integer(expr)):
+            result = 'integer'
+        elif ask(Q.real(expr)):
+            result = 'real*8'
+        elif ask(Q.complex(expr)):
+            result = 'complex*8'
+        else:
+            raise TypeError('Could not infer type of %s'%str(expr))
+    return result
+
+def generate(comp, inputs, outputs, types=dict(), name='f'):
     """ Generate Fortran code from a computation
 
     comp - a tokenized computation from inplace_compile
     inputs  - a list of SymPy (Matrix)Expressions
     outputs - a list of SymPy (Matrix)Expressions
-    types   - a dictionary mapping expressions in your computation to types
+    types   - a dictionary mapping expressions to known datatype
     name    - the name of your subroutine
     """
 
@@ -159,7 +171,10 @@ def declare_variable(token, comp, types, inputs, outputs):
     if not exprs:
         return ''
     expr = exprs.pop()
-    typ = types[expr]
+    if expr in types:
+        typ = types[expr]
+    else:
+        typ = dtype_of(expr)
     return declare_variable_string(token, expr, typ, isinput, isoutput)
 
 
