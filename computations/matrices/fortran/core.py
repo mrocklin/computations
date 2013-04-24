@@ -144,12 +144,21 @@ def sorted_tokens(source, exprs):
 # Variable Printing #
 #####################
 
-def shape_str(shape):
+def assumed_shape_str(shape):
     """ Fortran string for a shape.  Remove 1's from Python shapes """
     if shape[0] == 1 or shape[1] == 1:
         return "(:)"
     else:
         return "(:,:)"
+
+def explicit_shape_str(shape):
+    """ Fortran string for a shape.  Remove 1's from Python shapes """
+    if shape[0] == 1:
+        return "(%s)"%str(shape[1])
+    if shape[1] == 1:
+        return "(%s)"%str(shape[0])
+    else:
+        return "(%s,%s)"%(str(shape[0]), str(shape[1]))
 
 def intent_str(isinput, isoutput):
     if isinput and isoutput:
@@ -178,7 +187,8 @@ def declare_variable(token, comp, types, inputs, outputs):
     return declare_variable_string(token, expr, typ, isinput, isoutput)
 
 
-def declare_variable_string(token, expr, typ, is_input, is_output):
+def declare_variable_string(token, expr, typ, is_input, is_output,
+        shape_str=assumed_shape_str):
     rv = typ
     intent = intent_str(is_input, is_output)
     rv += intent
