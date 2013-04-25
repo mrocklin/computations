@@ -16,6 +16,8 @@ class FortranPrintableTokenComputation(object):
         return self.comp.fortran_use_statements()
     def fortran_include_statements(self):
         return self.comp.fortran_include_statements()
+    def fortran_call(self):
+        return self.comp.fortran_call(self.input_tokens, self.output_tokens)
 
 
 class FortranPrintableComputation(object):
@@ -107,9 +109,7 @@ def generate(comp, inputs, outputs, types, name='f'):
     array_allocations = join([allocate_array(v, input_tokens, output_tokens)
                                 for v in unique(vars, key=gettoken)])
 
-    statements = join([
-        c.comp.fortran_call(c.input_tokens, c.output_tokens)
-        for c in computations])
+    statements = join([c.fortran_call() for c in computations])
 
     variable_destructions = join(map(destroy_variable, vars))
 
