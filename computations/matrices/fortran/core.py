@@ -24,7 +24,7 @@ class FortranPrintableComputation(object):
 
     # DAG Functions
     def fortran_header(self, name, inputs, outputs):
-        return 'subroutine %s(%s)'%(name, ', '.join(inputs+outputs))
+        return '%s(%s)'%(name, ', '.join(inputs+outputs))
 
     def fortran_use_statements(self):
         if isinstance(self, CompositeComputation):

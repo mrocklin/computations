@@ -1,4 +1,4 @@
-%(subroutine_header)s
+subroutine %(subroutine_header)s
 
 %(use_statements)s
 
