@@ -113,10 +113,13 @@ def generate(comp, inputs, outputs, types=dict(), name='f'):
         declare_variable(token, comp, types, inputs, outputs)
         for token in unique(input_tokens + output_tokens)])
 
+    assumed_dim_declarations  = map(assumed_dimension_declaration, dimens)
+    explicit_dim_declarations = map(explicit_dimension_declaration, dimens)
+
     variable_declarations = join([
         declare_variable(token, comp, types, inputs, outputs)
         for token in (set(tokens) - set(input_tokens + output_tokens))]
-         + map(dimension_declaration, dimens))
+        + assumed_dim_declarations)
 
     dimen_inits = map(dimension_initialization,
                       dimens,
@@ -249,8 +252,11 @@ def constant_arg(arg):
     If so we don't want to include it as a parameter """
     return is_number(arg) or isinstance(arg, ZeroMatrix)
 
-def dimension_declaration(dimen):
+def assumed_dimension_declaration(dimen):
     return "integer :: %s" % str(dimen)
+
+def explicit_dimension_declaration(dimen):
+    return "integer, intent(in) :: %s" % str(dimen)
 
 def dimension_initialization(dimen, var):
     return str(dimen) + ' = size(%s, %d)'%(var.token,
