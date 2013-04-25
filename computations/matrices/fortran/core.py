@@ -6,6 +6,8 @@ from sympy import MatrixExpr, Expr, ZeroMatrix, assuming, ask, Q
 
 with open('computations/matrices/fortran/template.f90') as f:
     template = f.read()
+with open('computations/matrices/fortran/f2py-template.f90') as f:
+    f2py_template = f.read()
 
 class FortranPrintableTokenComputation(object):
     def fortran_footer(self, *args):
@@ -114,7 +116,6 @@ def generate(comp, inputs, outputs, types=dict(), name='f'):
         for token in unique(input_tokens + output_tokens)])
 
     assumed_dim_declarations  = map(assumed_dimension_declaration, dimens)
-    explicit_dim_declarations = map(explicit_dimension_declaration, dimens)
 
     variable_declarations = join([
         declare_variable(token, comp, types, inputs, outputs)
@@ -142,10 +143,27 @@ def generate(comp, inputs, outputs, types=dict(), name='f'):
     return template % locals()
 
 
-def generate_f2py(comp, inputs, outputs, types=dict(), name='f'):
+def generate_f2py_header(comp, inputs, outputs, types=dict(), name='f'):
     (computations, vars, input_tokens, input_vars, output_tokens, tokens,
             dimens) = tokens_of(comp, inputs, outputs)
-    pass
+
+    dimen_tokens = map(str, dimens)
+
+    subroutine_header = comp.fortran_header(name,
+                                            input_tokens + dimen_tokens,
+                                            output_tokens)
+    dimension_declarations = join(map(explicit_dimension_declaration, dimens))
+
+    argument_declarations = join([
+        declare_variable(token, comp, types, inputs, outputs,
+            shape_str=explicit_shape_str)
+        for token in unique(input_tokens + output_tokens)])
+
+    call_statement = "%s(%s)"%(
+            name, ','.join(input_tokens+dimen_tokens+output_tokens))
+
+    return f2py_template % locals()
+
 
 gettoken = lambda x: x.token
 def sorted_tokens(source, exprs):
@@ -184,7 +202,7 @@ def intent_str(isinput, isoutput):
     else:
         return ''
 
-def declare_variable(token, comp, types, inputs, outputs):
+def declare_variable(token, comp, types, inputs, outputs, **kwargs):
     isinput  = any(token == v.token for v in comp.inputs if not
             constant_arg(v.expr))
     isoutput = any(token == v.token for v in comp.outputs if not
@@ -198,7 +216,8 @@ def declare_variable(token, comp, types, inputs, outputs):
         typ = types[expr]
     else:
         typ = dtype_of(expr)
-    return declare_variable_string(token, expr, typ, isinput, isoutput)
+    return declare_variable_string(token, expr, typ, isinput, isoutput,
+            **kwargs)
 
 
 def declare_variable_string(token, expr, typ, is_input, is_output,

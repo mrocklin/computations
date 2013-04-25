@@ -12,6 +12,12 @@ mathcomp = GEMM(1.0, X, y, 0.0, ZeroMatrix(n, 1))
 ic = inplace_compile(mathcomp)
 with assuming(Q.real(X), Q.real(y)):
     s = generate(ic, inputs, outputs, name='f')
+    f2py = generate_f2py_header(ic, inputs, outputs, name='f')
+
+def test_f2py():
+    assert "X(n,n)" in f2py
+    assert 'integer, intent(in) :: n' in f2py
+    assert 'n' in f2py.strip().split('\n')[0]  # n in first line
 
 def test_simple():
     assert isinstance(s, str)
