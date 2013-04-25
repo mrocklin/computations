@@ -74,6 +74,19 @@ def dtype_of(expr, *assumptions):
             raise TypeError('Could not infer type of %s'%str(expr))
     return result
 
+def tokens_of(comp, inputs, outputs):
+    computations = comp.toposort()
+    vars = list(comp.variables)
+
+    input_tokens  = sorted_tokens(comp.inputs, inputs)
+    input_vars = [v for v in vars if v.token in input_tokens]
+    output_tokens = sorted_tokens(comp.outputs, outputs)
+    tokens = list(set(map(gettoken, vars)))
+    dimens = dimensions(comp)
+
+    return (computations, vars, input_tokens, input_vars, output_tokens, tokens,
+            dimens)
+
 def generate(comp, inputs, outputs, types=dict(), name='f'):
     """ Generate Fortran code from a computation
 
@@ -84,15 +97,8 @@ def generate(comp, inputs, outputs, types=dict(), name='f'):
     name    - the name of your subroutine
     """
 
-
-    computations = comp.toposort()
-    vars = list(comp.variables)
-
-    input_tokens  = sorted_tokens(comp.inputs, inputs)
-    input_vars = [v for v in vars if v.token in input_tokens]
-    output_tokens = sorted_tokens(comp.outputs, outputs)
-    tokens = list(set(map(gettoken, vars)))
-    dimens = dimensions(comp)
+    (computations, vars, input_tokens, input_vars, output_tokens, tokens,
+            dimens) = tokens_of(comp, inputs, outputs)
 
     function_definitions = join([c.comp.fortran_function_definition()
                                             for c in computations])
@@ -132,6 +138,11 @@ def generate(comp, inputs, outputs, types=dict(), name='f'):
 
     return template % locals()
 
+
+def generate_f2py(comp, inputs, outputs, types=dict(), name='f'):
+    (computations, vars, input_tokens, input_vars, output_tokens, tokens,
+            dimens) = tokens_of(comp, inputs, outputs)
+    pass
 
 gettoken = lambda x: x.token
 def sorted_tokens(source, exprs):
