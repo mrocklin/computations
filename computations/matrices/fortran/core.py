@@ -160,7 +160,7 @@ def generate_f2py_header(comp, inputs, outputs, types=dict(), name='f'):
         for token in unique(input_tokens + output_tokens)])
 
     call_statement = "%s(%s)"%(
-            name, ','.join(input_tokens+dimen_tokens+output_tokens))
+            name, ','.join(input_tokens+output_tokens))
 
     return f2py_template % locals()
 

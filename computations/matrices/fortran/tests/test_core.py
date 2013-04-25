@@ -14,11 +14,6 @@ with assuming(Q.real(X), Q.real(y)):
     s = generate(ic, inputs, outputs, name='f')
     f2py = generate_f2py_header(ic, inputs, outputs, name='f')
 
-def test_f2py():
-    assert "X(n,n)" in f2py
-    assert 'integer, intent(in) :: n' in f2py
-    assert 'n' in f2py.strip().split('\n')[0]  # n in first line
-
 def test_simple():
     assert isinstance(s, str)
     assert "call dgemm('N', 'N', n, 1, n" in s
@@ -63,3 +58,20 @@ def test_dtype_of():
     assert 'integer' in dtype_of(X, Q.integer(X))
     assert 'real' in dtype_of(X, Q.real(X))
     assert 'complex' in dtype_of(X, Q.complex(X))
+
+def test_f2py():
+    assert "X(n,n)" in f2py
+    assert 'integer, intent(in) :: n' in f2py
+    assert 'n' in f2py.strip().split('\n')[0]  # n in first line
+    assert not any('call' in line and 'n' in line for line in f2py.split('\n'))
+
+def test_f2py_compile():
+    with open('tmp.f90', 'w') as f:
+        f.write(s)
+        f.write(f2py)
+    import os
+    pipe = os.popen('f2py -c tmp.f90 -m tmp')
+    text = pipe.read()
+    if "Error" in text:
+        print text
+        assert False
