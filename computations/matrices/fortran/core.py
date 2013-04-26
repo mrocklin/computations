@@ -28,7 +28,8 @@ class FortranPrintableComputation(object):
 
     # DAG Functions
     def fortran_header(self, name, inputs, outputs):
-        return '%s(%s)'%(name, ', '.join(inputs+outputs))
+        return '%s(%s)'%(name, ', '.join(list(inputs)+
+                                        remove(inputs.__contains__, outputs)))
 
     def fortran_use_statements(self):
         if isinstance(self, CompositeComputation):
@@ -67,6 +68,9 @@ def join(L):
     return '  ' + '\n  '.join([x for x in L if x])
 
 def dtype_of(expr, *assumptions):
+    if hasattr(expr, 'fortran_type'):
+        return expr.fortran_type()
+
     with assuming(*assumptions):
         if ask(Q.integer(expr)):
             result = 'integer'
@@ -162,7 +166,8 @@ def generate_f2py_header(comp, inputs, outputs, types=dict(), name='f'):
         for token in unique(input_tokens + output_tokens)])
 
     call_statement = "%s(%s)"%(
-            name, ','.join(input_tokens+output_tokens))
+            name, ','.join(input_tokens
+                         + remove(input_tokens.__contains__, output_tokens)))
 
     return f2py_template % locals()
 
@@ -240,7 +245,7 @@ def declare_variable(token, comp, types, inputs, outputs, **kwargs):
     isoutput = any(token == v.token for v in comp.outputs if not
             constant_arg(v.expr) and v.expr in outputs)
     exprs = set(v.expr for v in comp.variables if v.token == token
-                                          and not is_number(v.expr))
+                                          and not constant_arg(v.expr))
     if not exprs:
         return ''
     expr = exprs.pop()

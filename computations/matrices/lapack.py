@@ -10,7 +10,14 @@ from computations.util import merge
 
 A = MatrixSymbol('_A', n, n)
 B = MatrixSymbol('_B', n, m)
-INFO = Symbol('INFO')
+
+class INFOType(Symbol):
+    def fortran_type(self):
+        return 'integer'
+
+    name = 'INFO'
+
+INFO = INFOType('INFO')
 
 class IPIV(MatrixExpr):
     def __new__(cls, A):
