@@ -19,6 +19,8 @@ class Plan(Basic):
         assert isinstance(token, str)
         return '! destroy ' + token
 
+    def fortran_type(self):
+        return 'type(C_PTR)'
 
 class FFTW(MatrixCall):
     @property

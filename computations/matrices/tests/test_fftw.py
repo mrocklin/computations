@@ -1,4 +1,4 @@
-from sympy import MatrixSymbol, Symbol
+from sympy import MatrixSymbol, Symbol, Q, assuming
 from computations.inplace import inplace_compile
 from sympy.matrices.expressions.fourier import DFT
 from computations.matrices.fftw import FFTW, Plan
@@ -6,9 +6,6 @@ from computations.matrices.fftw import FFTW, Plan
 n = Symbol('n')
 x = MatrixSymbol('X', n, 1)
 c = FFTW(x)
-
-types = {q: 'complex(kind=8)' for q in [x, DFT(n), DFT(n)*x]}
-types[Plan()] = 'type(C_PTR)'
 
 def test_FFTW():
     assert Plan() in c.outputs
@@ -18,7 +15,8 @@ def test_FFTW():
 def test_code_generation():
     from computations.matrices.fortran.core import generate
     ic = inplace_compile(c)
-    s = generate(ic, [x], [DFT(n)*x], types, 'f')
+    with assuming(Q.complex(DFT(n)), Q.complex(x)):
+        s = generate(ic, [x], [DFT(n)*x])
 
     assert 'use, intrinsic :: iso_c_binding' in s
     assert "include 'fftw3.f03'" in s
