@@ -8,6 +8,8 @@ with open('computations/matrices/fortran/template.f90') as f:
     template = f.read()
 with open('computations/matrices/fortran/f2py-template.f90') as f:
     f2py_template = f.read()
+with open('computations/matrices/fortran/module-template.f90') as f:
+    module_template = f.read()
 
 class FortranPrintableTokenComputation(object):
     def fortran_footer(self, *args):
@@ -164,6 +166,13 @@ def generate_f2py_header(comp, inputs, outputs, types=dict(), name='f'):
 
     return f2py_template % locals()
 
+def generate_module(*args, **kwargs):
+    module_name = kwargs.pop('modname', 'mod')
+    generate_fns = kwargs.get('generate_fns', [generate, generate_f2py_header])
+
+    subroutines = '\n\n'.join(g(*args, **kwargs) for g in generate_fns)
+
+    return module_template % locals()
 
 gettoken = lambda x: x.token
 def sorted_tokens(source, exprs):

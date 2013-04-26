@@ -13,6 +13,7 @@ ic = inplace_compile(mathcomp)
 with assuming(Q.real(X), Q.real(y)):
     s = generate(ic, inputs, outputs, name='f')
     f2py = generate_f2py_header(ic, inputs, outputs, name='f')
+    mod = generate_module(ic, inputs, outputs, name='f', modname='mod')
 
 def test_simple():
     assert isinstance(s, str)
@@ -67,10 +68,9 @@ def test_f2py():
 
 def test_f2py_compile():
     with open('tmp.f90', 'w') as f:
-        f.write(s)
-        f.write(f2py)
+        f.write(mod)
     import os
-    pipe = os.popen('f2py -c tmp.f90 -m tmp')
+    pipe = os.popen('f2py -c tmp.f90 -m mod -lblas -llapack')
     text = pipe.read()
     if "Error" in text:
         print text

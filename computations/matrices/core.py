@@ -76,9 +76,22 @@ class MatrixCall(Computation):
     def fortran_call(self, input_names, output_names):
         args = type(self).arguments(self.inputs, self.outputs)
         name_map = dict(zip(self.inputs+self.outputs, input_names+output_names))
-        argnames = [a if is_number(a) else name_map[a] for a in args]
+        argnames = [print_number(a) if is_number(a) else name_map[a] for a in args]
         codemap = self.codemap(argnames)
         return self.fortran_template % codemap
+
+def fortran_double_str(x):
+    if 'e' in str(x):
+        return str(x).replace('e', 'd')
+    else:
+        return str(x) + 'd+0'
+
+
+def print_number(x):
+    if isinstance(x, float) or isinstance(x, Basic) and x.is_Float:
+        return fortran_double_str(x)
+    return str(x)
+
 
 def nameof(var):
     """ Fortran name of variable """
