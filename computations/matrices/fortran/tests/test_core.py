@@ -75,3 +75,15 @@ def test_f2py_compile():
     if "Error" in text:
         print text
         assert False
+
+def test_build():
+    with assuming(Q.real(X), Q.real(y)):
+        f = build(ic, inputs, outputs)
+
+def test_numerics():
+    import numpy as np
+    with assuming(Q.real(X), Q.real(y)):
+        f = build(ic, inputs, outputs)
+    nX, ny = np.ones((5, 5)), np.ones(5)
+    result = np.matrix(nX) * np.matrix(ny).T
+    assert np.allclose(f(nX, ny), result)

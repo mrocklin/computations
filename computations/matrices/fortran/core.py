@@ -166,6 +166,7 @@ def generate_f2py_header(comp, inputs, outputs, types=dict(), name='f'):
 
     return f2py_template % locals()
 
+
 def generate_module(*args, **kwargs):
     module_name = kwargs.pop('modname', 'mod')
     generate_fns = kwargs.get('generate_fns', [generate, generate_f2py_header])
@@ -173,6 +174,28 @@ def generate_module(*args, **kwargs):
     subroutines = '\n\n'.join(g(*args, **kwargs) for g in generate_fns)
 
     return module_template % locals()
+
+
+def compile(source, filename, modname='mod', flags=['blas', 'lapack']):
+    with open(filename, 'w') as f:
+        f.write(source)
+
+    import os
+    flagstr = ' '.join('-l'+flag for flag in flags)
+    pipe = os.popen('f2py -c %(filename)s -m %(modname)s %(flagstr)s' % locals())
+    text = pipe.read()
+    if "Error" in text:
+        print text
+        raise ValueError('Did not compile')
+
+
+def build(comp, inputs, outputs, types=dict(), name='f', modname='mod',
+        filename='tmp.f90', flags=['blas', 'lapack']):
+    source = generate_module(comp, inputs, outputs, types, name=name,
+            modname=modname)
+    compile(source, filename, modname, flags)
+    mod = __import__(modname)
+    return getattr(getattr(mod, modname), 'py_'+name)
 
 gettoken = lambda x: x.token
 def sorted_tokens(source, exprs):
