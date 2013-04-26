@@ -17,7 +17,7 @@ def test_POSV():
     c = POSV(A, y)
     ic = inplace_compile(c)
     with assuming(Q.real(A), Q.real(y)):
-        f = build(ic, [A, y], [A.I*y])
+        f = build(ic, [A, y], [A.I*y], modname='posv')
 
     nA, ny = np.asarray([[2, 1], [1, 2]], dtype='float64').reshape((2, 2)), np.ones(2)
     mA = np.matrix(nA)
@@ -35,7 +35,7 @@ def test_linear_regression():
 
     ic = inplace_compile(c)
     with assuming(Q.real(X), Q.real(y)):
-        f = build(ic, [X, y], [beta])
+        f = build(ic, [X, y], [beta], modname='linregress')
 
     nX = np.asarray([[2, 1], [1, 2]], dtype='float64').reshape((2, 2))
     ny = np.ones(2)
@@ -43,5 +43,4 @@ def test_linear_regression():
     mX = np.matrix(nX)
     my = np.matrix(ny).T
     expected = np.linalg.solve(mX.T*mX, mX.T*my)
-    f(nX, ny)
-    assert np.allclose(expected, ny)
+    assert np.allclose(expected, f(nX, ny))
