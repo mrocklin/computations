@@ -1,5 +1,5 @@
 from computations.core import Computation, unique, CompositeComputation
-from computations.inplace import TokenComputation, ExprToken
+from computations.inplace import TokenComputation, ExprToken, inplace_compile
 from computations.util import groupby, remove
 from functools import partial
 from sympy import MatrixExpr, Expr, ZeroMatrix, assuming, ask, Q
@@ -194,8 +194,13 @@ def compile(source, filename, modname='mod', flags=['blas', 'lapack']):
         raise ValueError('Did not compile')
 
 
+def is_token_computation(c):
+    return isinstance(list(c.variables)[0], ExprToken)
+
 def build(comp, inputs, outputs, types=dict(), name='f', modname='mod',
         filename='tmp.f90', flags=['blas', 'lapack']):
+    if not is_token_computation(comp):
+        comp = inplace_compile(comp)
     source = generate_module(comp, inputs, outputs, types, name=name,
             modname=modname)
     compile(source, filename, modname, flags)

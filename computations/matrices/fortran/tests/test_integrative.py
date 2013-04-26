@@ -1,7 +1,6 @@
 from sympy import Symbol, MatrixSymbol, Q, assuming, ZeroMatrix
 import numpy as np
 
-from computations.inplace import inplace_compile
 from computations.matrices.fortran.core import build
 from computations.matrices.blas import GEMM, SYRK
 from computations.matrices.lapack import POSV
@@ -15,9 +14,8 @@ X = MatrixSymbol('X', n, m)
 
 def test_POSV():
     c = POSV(A, y)
-    ic = inplace_compile(c)
     with assuming(Q.real(A), Q.real(y)):
-        f = build(ic, [A, y], [A.I*y], modname='posv')
+        f = build(c, [A, y], [A.I*y], modname='posv')
 
     nA, ny = np.asarray([[2, 1], [1, 2]], dtype='float64').reshape((2, 2)), np.ones(2)
     mA = np.matrix(nA)
@@ -33,9 +31,8 @@ def test_linear_regression():
        + SYRK(1.0, X.T, 0.0, ZeroMatrix(m, m))
        + GEMM(1.0, X.T, y, 0.0, ZeroMatrix(n, 1)))
 
-    ic = inplace_compile(c)
     with assuming(Q.real(X), Q.real(y)):
-        f = build(ic, [X, y], [beta], modname='linregress')
+        f = build(c, [X, y], [beta], modname='linregress')
 
     nX = np.asarray([[2, 1], [1, 2]], dtype='float64').reshape((2, 2))
     ny = np.ones(2)
