@@ -93,7 +93,8 @@ class POSV(LAPACK):
     condition = Q.positive_definite(A) & Q.symmetric(A)
 
     fortran_template = ("call %(fn)s('%(UPLO)s', %(N)s, %(NRHS)s, %(A)s, "
-                        "%(LDA)s, %(B)s, %(LDB)s, %(INFO)s)")
+                        "%(LDA)s, %(B)s, %(LDB)s, %(INFO)s)\n"
+                        "  if (%(INFO)s.ne.0) print *, 'POSV failed'\n")
 
     def codemap(self, names, assumptions=()):
         varnames = 'A B INFO'.split()
