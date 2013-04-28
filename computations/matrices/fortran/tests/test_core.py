@@ -30,14 +30,15 @@ def test_dimension_initialization():
     assert 'n = size(X, 1)' in s or 'n = size(y, 1)' in s
 
 def test_variable_declaration():
-    s = declare_variable_string('a', Symbol('a'), 'integer', True, False)
+    s = declare_variable_string('a', Symbol('a'), 'integer', True, False, False)
     assert s == "integer, intent(in) :: a"
 
-    s = declare_variable_string('X', MatrixSymbol('X',n,n), 'real*4', True,True)
+    s = declare_variable_string('X', MatrixSymbol('X',n,n), 'real*4', True,
+            True, True)
     assert s == "real*4, intent(inout) :: X(:,:)"
 
     s = declare_variable_string('X', MatrixSymbol('X',n,n), 'real*4',
-            False,False)
+            False, True, False)
     assert "allocatable" in s
 
 def test_allocate_array():

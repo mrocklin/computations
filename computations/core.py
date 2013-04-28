@@ -45,6 +45,8 @@ class Computation(object):
     def __eq__(self, other):
         return type(self) == type(other) and self._info() == other._info()
 
+    libs = []
+    includes = []
 
 class CompositeComputation(Computation):
     """ A computation composed of other computations """
@@ -119,6 +121,14 @@ class CompositeComputation(Computation):
 
     def _info(self):
         return type(self), frozenset(self.computations)
+
+    @property
+    def libs(self):
+        return list(unique(sum([c.libs for c in self.computations], [])))
+    @property
+    def includes(self):
+        return list(unique(sum([c.includes for c in self.computations], [])))
+
 
 def rm_identity(computations):
     """ Remove or reduce one identity """

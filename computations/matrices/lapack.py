@@ -28,7 +28,7 @@ class IPIV(MatrixExpr):
 
 class LAPACK(MatrixCall):
     """ Linear Algebra PACKage - Dense Matrix computation """
-    flags = ["-llapack"]
+    libs = ["lapack"]
 
 class GESV(LAPACK):
     """ General Matrix Vector Solve """

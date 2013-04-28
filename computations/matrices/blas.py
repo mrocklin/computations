@@ -12,7 +12,7 @@ from sympy.matrices.expressions import ZeroMatrix, Transpose
 
 class BLAS(MatrixCall):
     """ Basic Linear Algebra Subroutine - Dense Matrix computation """
-    flags = ["-lblas"]
+    libs = ["blas"]
 
 class MM(BLAS):
     """ Matrix Multiply """

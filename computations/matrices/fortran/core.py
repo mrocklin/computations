@@ -180,16 +180,22 @@ def generate_module(*args, **kwargs):
 
     return module_template % locals()
 
-
-def compile(source, filename, modname='mod', flags=['blas', 'lapack']):
+default_includes = ['/usr/include']
+def compile(source, filename, modname='mod',
+            libs=[], includes=[]):
     with open(filename, 'w') as f:
         f.write(source)
 
     import os
-    flagstr = ' '.join('-l'+flag for flag in flags)
-    pipe = os.popen('f2py -c %(filename)s -m %(modname)s %(flagstr)s' % locals())
+    includes = includes + default_includes
+    libstr = ' '.join('-l'+lib for lib in libs)
+    incstr = ' '.join('-I'+i for i in includes)
+    command = ('f2py -c %(filename)s -m %(modname)s '
+               '%(libstr)s %(incstr)s') % locals()
+    pipe = os.popen(command)
     text = pipe.read()
     if "Error" in text:
+        print command
         print text
         raise ValueError('Did not compile')
 
@@ -198,12 +204,12 @@ def is_token_computation(c):
     return isinstance(list(c.variables)[0], ExprToken)
 
 def build(comp, inputs, outputs, types=dict(), name='f', modname='mod',
-        filename='tmp.f90', flags=['blas', 'lapack']):
+        filename='tmp.f90'):
     if not is_token_computation(comp):
         comp = inplace_compile(comp)
     source = generate_module(comp, inputs, outputs, types, name=name,
             modname=modname)
-    compile(source, filename, modname, flags)
+    compile(source, filename, modname, libs=comp.libs, includes=comp.includes)
     mod = __import__(modname)
     return getattr(getattr(mod, modname), 'py_'+name)
 
@@ -234,10 +240,16 @@ def explicit_shape_str(shape):
     else:
         return "(%s,%s)"%(str(shape[0]), str(shape[1]))
 
-def intent_str(isinput, isoutput):
+def intent_str(isinput, isinternal, isoutput):
+    """ Intent of variable given
+
+    isinput - If it is an input paramter
+    isinternal - If it is overwritten internally
+    isoutput - If it is an output parameter
+    """
     if isinput and isoutput:
         return ', intent(inout)'
-    elif isinput and not isoutput:
+    elif isinput and not isoutput and not isinternal:
         return ', intent(in)'
     elif not isinput and isoutput:
         return ', intent(out)'
@@ -245,10 +257,12 @@ def intent_str(isinput, isoutput):
         return ''
 
 def declare_variable(token, comp, types, inputs, outputs, **kwargs):
+    internal_vars = set(v for v in comp.variables if v.expr not in inputs)
     isinput  = any(token == v.token for v in comp.inputs if not
             constant_arg(v.expr))
     isoutput = any(token == v.token for v in comp.outputs if not
             constant_arg(v.expr) and v.expr in outputs)
+    isinternal = any(token == v.token for v in internal_vars)
     exprs = set(v.expr for v in comp.variables if v.token == token
                                           and not constant_arg(v.expr))
     if not exprs:
@@ -258,14 +272,13 @@ def declare_variable(token, comp, types, inputs, outputs, **kwargs):
         typ = types[expr]
     else:
         typ = dtype_of(expr)
-    return declare_variable_string(token, expr, typ, isinput, isoutput,
-            **kwargs)
+    return declare_variable_string(token, expr, typ, isinput, isinternal, isoutput, **kwargs)
 
 
-def declare_variable_string(token, expr, typ, is_input, is_output,
+def declare_variable_string(token, expr, typ, is_input, is_internal, is_output,
         shape_str=assumed_shape_str):
     rv = typ
-    intent = intent_str(is_input, is_output)
+    intent = intent_str(is_input, is_internal, is_output)
     rv += intent
     if isinstance(expr, MatrixExpr) and not is_input and not is_output:
         rv += ", allocatable"

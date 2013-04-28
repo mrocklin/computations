@@ -24,6 +24,9 @@ class Plan(Basic):
 
 class FFTW(MatrixCall):
     inplace ={0:0}
+
+    libs = ['fftw3']
+
     @property
     def inputs(self):
         return (self.args[0],)

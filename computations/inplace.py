@@ -261,3 +261,11 @@ class TokenComputation(Computation):
         ins  = "["+', '.join(map(str, self.inputs)) +"]"
         outs = "["+', '.join(map(str, self.outputs))+"]"
         return "%s -> %s -> %s"%(ins, str(self.op.__name__), outs)
+
+    @property
+    def libs(self):
+        return self.comp.libs
+
+    @property
+    def includes(self):
+        return self.comp.includes
