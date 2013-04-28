@@ -75,9 +75,9 @@ def dtype_of(expr, *assumptions):
         if ask(Q.integer(expr)):
             result = 'integer'
         elif ask(Q.real(expr)):
-            result = 'real*8'
+            result = 'real(kind=8)'
         elif ask(Q.complex(expr)):
-            result = 'complex*8'
+            result = 'complex(kind=8)'
         else:
             raise TypeError('Could not infer type of %s'%str(expr))
     return result

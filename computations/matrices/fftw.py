@@ -23,6 +23,7 @@ class Plan(Basic):
         return 'type(C_PTR)'
 
 class FFTW(MatrixCall):
+    inplace ={0:0}
     @property
     def inputs(self):
         return (self.args[0],)
