@@ -43,6 +43,7 @@ ints = start1, stop1, step1, start2, stop2, step2 = map(Dummy,
         '_start1 _stop1 _step1 _start2 _stop2 _step2'.split())
 other_patterns = [
     (DFT(n) * x, FFTW(x), (x, n), True),
+    (DFT(n).T * x, IFFTW(x), (x, n), True),
 ]
 
 patterns = lapack_patterns + blas_patterns + other_patterns

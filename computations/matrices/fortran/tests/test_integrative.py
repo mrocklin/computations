@@ -54,3 +54,21 @@ def test_fftw():
     expected = np.fft.fft(x)
     f(x)
     assert np.allclose(expected, x)
+
+def test_fftw_inverse():
+    from computations.matrices.fftw import FFTW, IFFTW
+    from sympy.matrices.expressions.fourier import DFT
+    c = FFTW(y)
+    with assuming(Q.complex(y), Q.complex(DFT(y))):
+        f = build(c, [y], [DFT(y)], modname='fftw', filename='fftw.f90')
+
+    c = IFFTW(y)
+    with assuming(Q.complex(y), Q.complex(DFT(y).T)):
+        fi = build(c, [y], [DFT(y).T], modname='ifftw', filename='ifftw.f90')
+
+    x = np.random.random_sample((8,)) + 1j * np.random.random_sample((8,))
+    expected = x
+    f(x)
+    fi(x)
+    assert np.allclose(expected, x)
+
