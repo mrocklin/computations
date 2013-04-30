@@ -15,7 +15,7 @@ def test_FFTW():
 def test_code_generation():
     from computations.matrices.fortran.core import generate
     ic = inplace_compile(c)
-    with assuming(Q.complex(DFT(n)), Q.complex(x)):
+    with assuming(Q.complex_elements(DFT(n)), Q.complex_elements(x)):
         s = generate(ic, [x], [DFT(n)*x])
     with open('tmp.f90','w') as f:
       f.write(s)

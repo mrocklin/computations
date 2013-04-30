@@ -10,7 +10,7 @@ inputs = [X, y]
 outputs = [X*y]
 mathcomp = GEMM(1.0, X, y, 0.0, ZeroMatrix(n, 1))
 ic = inplace_compile(mathcomp)
-with assuming(Q.real(X), Q.real(y)):
+with assuming(Q.real_elements(X), Q.real_elements(y)):
     s = generate(ic, inputs, outputs, name='f')
     f2py = generate_f2py_header(ic, inputs, outputs, name='f')
     mod = generate_module(ic, inputs, outputs, name='f', modname='mod')
@@ -57,9 +57,9 @@ def test_allocate_array():
 
 def test_dtype_of():
     X = MatrixSymbol('X', n, n)
-    assert 'integer' in dtype_of(X, Q.integer(X))
-    assert 'real' in dtype_of(X, Q.real(X))
-    assert 'complex' in dtype_of(X, Q.complex(X))
+    assert 'integer' in dtype_of(X, Q.integer_elements(X))
+    assert 'real' in dtype_of(X, Q.real_elements(X))
+    assert 'complex' in dtype_of(X, Q.complex_elements(X))
 
 def test_f2py():
     assert "X(n,n)" in f2py
@@ -78,12 +78,12 @@ def test_f2py_compile():
         assert False
 
 def test_build():
-    with assuming(Q.real(X), Q.real(y)):
+    with assuming(Q.real_elements(X), Q.real_elements(y)):
         f = build(ic, inputs, outputs)
 
 def test_numerics():
     import numpy as np
-    with assuming(Q.real(X), Q.real(y)):
+    with assuming(Q.real_elements(X), Q.real_elements(y)):
         f = build(ic, inputs, outputs)
     nX, ny = np.ones((5, 5)), np.ones(5)
     result = np.matrix(nX) * np.matrix(ny).T

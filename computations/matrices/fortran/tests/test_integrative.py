@@ -14,7 +14,7 @@ X = MatrixSymbol('X', n, m)
 
 def test_POSV():
     c = POSV(A, y)
-    with assuming(Q.real(A), Q.real(y)):
+    with assuming(Q.real_elements(A), Q.real_elements(y)):
         f = build(c, [A, y], [A.I*y], modname='posv', filename='posv.f90')
 
     nA, ny = np.asarray([[2, 1], [1, 2]], dtype='float64').reshape((2, 2)), np.ones(2)
@@ -31,7 +31,7 @@ def test_linear_regression():
        + SYRK(1.0, X.T, 0.0, ZeroMatrix(m, m))
        + GEMM(1.0, X.T, y, 0.0, ZeroMatrix(n, 1)))
 
-    with assuming(Q.real(X), Q.real(y)):
+    with assuming(Q.real_elements(X), Q.real_elements(y)):
         f = build(c, [X, y], [beta],
                     modname='linregress', filename='linregress.f90')
 
@@ -47,7 +47,7 @@ def test_fftw():
     from computations.matrices.fftw import FFTW
     from sympy.matrices.expressions.fourier import DFT
     c = FFTW(y)
-    with assuming(Q.complex(y), Q.complex(DFT(y))):
+    with assuming(Q.complex_elements(y), Q.complex_elements(DFT(y))):
         f = build(c, [y], [DFT(y)], modname='fftw', filename='fftw.f90')
 
     x = np.zeros(8, dtype='complex')

@@ -72,11 +72,11 @@ def dtype_of(expr, *assumptions):
         return expr.fortran_type()
 
     with assuming(*assumptions):
-        if ask(Q.integer(expr)):
+        if ask(Q.integer(expr) | Q.integer_elements(expr)):
             result = 'integer'
-        elif ask(Q.real(expr)):
+        elif ask(Q.real(expr) | Q.real_elements(expr)):
             result = 'real(kind=8)'
-        elif ask(Q.complex(expr)):
+        elif ask(Q.complex(expr) | Q.complex_elements(expr)):
             result = 'complex(kind=8)'
         else:
             raise TypeError('Could not infer type of %s'%str(expr))
