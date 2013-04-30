@@ -206,7 +206,8 @@ def is_token_computation(c):
 def build(comp, inputs, outputs, types=dict(), name='f', modname='mod',
         filename='tmp.f90'):
     if not is_token_computation(comp):
-        comp = inplace_compile(comp)
+        from computations.matrices.blas import COPY
+        comp = inplace_compile(comp, Copy=COPY)
     source = generate_module(comp, inputs, outputs, types, name=name,
             modname=modname)
     compile(source, filename, modname, libs=comp.libs, includes=comp.includes)
