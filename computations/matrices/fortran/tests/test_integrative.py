@@ -47,7 +47,7 @@ def test_fftw():
     from computations.matrices.fftw import FFTW
     from sympy.matrices.expressions.fourier import DFT
     c = FFTW(y)
-    with assuming(Q.complex_elements(y), Q.complex_elements(DFT(y))):
+    with assuming(Q.complex_elements(y)):
         f = build(c, [y], [DFT(y)], modname='fftw', filename='fftw.f90')
 
     x = np.zeros(8, dtype='complex')
@@ -59,11 +59,11 @@ def test_fftw_inverse():
     from computations.matrices.fftw import FFTW, IFFTW
     from sympy.matrices.expressions.fourier import DFT
     c = FFTW(y)
-    with assuming(Q.complex(y), Q.complex(DFT(y))):
+    with assuming(Q.complex(y)):
         f = build(c, [y], [DFT(y)], modname='fftw', filename='fftw.f90')
 
     c = IFFTW(y)
-    with assuming(Q.complex(y), Q.complex(DFT(y).T)):
+    with assuming(Q.complex(y)):
         fi = build(c, [y], [DFT(y).T], modname='ifftw', filename='ifftw.f90')
 
     x = np.random.random_sample((8,)) + 1j * np.random.random_sample((8,))
