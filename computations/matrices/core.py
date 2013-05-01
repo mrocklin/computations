@@ -39,9 +39,6 @@ class MatrixCall(Computation):
         self.typecode = typecode
 
     inputs = property(lambda self: self.args)
-   # inputs = property(lambda self:
-   #                 tuple(map(exhaust(bottom_up(canonicalize)),
-   #                           unique(remove_numbers(self.all_inputs)))))
 
     @property
     def outputs(self):

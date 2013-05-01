@@ -21,7 +21,7 @@ class Computation(object):
 
     @property
     def variables(self):
-        return unique(chain(self.inputs, self.outputs))
+        return tuple(unique(chain(self.inputs, self.outputs)))
 
     def __add__(self, other):
         return CompositeComputation(self, other)
@@ -89,7 +89,7 @@ class CompositeComputation(Computation):
 
     @property
     def variables(self):
-        return unique(chain(*[c.variables for c in self.computations]))
+        return tuple(unique(chain(*[c.variables for c in self.computations])))
 
     def __str__(self):
         return "[[" + "\n  ".join(map(str, self.toposort())) + "]]"
