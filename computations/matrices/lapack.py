@@ -4,8 +4,8 @@ from computations.matrices.shared import (detranspose, trans, LD,
 from computations.matrices.variables import (alpha, beta, n, m, k, C,
         x, a, b)
 from sympy import Q, S, Symbol, Basic
-from sympy.matrices.expressions import (MatrixSymbol, PermutationMatrix,
-        MatrixExpr, MatMul)
+from sympy.matrices.expressions import MatrixSymbol, MatrixExpr, MatMul
+from computations.matrices.permutation import PermutationMatrix
 from computations.util import merge
 
 A = MatrixSymbol('_A', n, n)
