@@ -1,4 +1,4 @@
-from sympy.matrices.expressions.permutation import PermutationMatrix
+from computations.matrices.permutation import PermutationMatrix
 from sympy.matrices import (Matrix, MatrixSymbol, MatMul, ImmutableMatrix,
         MatrixSymbol)
 from sympy import Symbol
