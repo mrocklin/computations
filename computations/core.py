@@ -17,7 +17,7 @@ class Computation(object):
         """ A sequence of edges """
         inedges  = ((i, self) for i in self.inputs)
         outedges = ((self, o) for o in self.outputs)
-        return chain(inedges, outedges)
+        return unique(chain(inedges, outedges))
 
     @property
     def variables(self):

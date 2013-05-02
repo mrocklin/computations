@@ -22,6 +22,10 @@ def test_composite():
                                  (d, B), (e, B), (B, f)))
     assert set(C.variables) == set((a, b, c, d, e, f))
 
+def test_unique_edges():
+    C = Computation((a, b, a), (d,))
+    assert len(tuple(C.edges())) == len(set(C.edges()))
+
 def test_composite_dict():
     assert C.dict_io() == {A: set([B]), B: set()}
     assert C.dict_oi() == {B: set([A]), A: set()}
