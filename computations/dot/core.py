@@ -52,11 +52,16 @@ def generate_dot(computation, **kwargs):
     calls = '\n'.join(map(call, computation.toposort()))
     return template % locals()
 
-def writepdf(computation, filename, extension='pdf', **kwargs):
-    import os
+
+def writedot(computation, filename, **kwargs):
     with open(filename+'.dot', 'w') as f:
         f.write(generate_dot(computation, **kwargs))
 
+
+def writepdf(computation, filename, extension='pdf', **kwargs):
+    writedot(computation, filename, **kwargs)
+
+    import os
     os.system('dot -T%s %s.dot -o %s.%s' % (
                     extension, filename, filename, extension))
 
