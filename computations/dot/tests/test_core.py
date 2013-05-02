@@ -12,5 +12,5 @@ def test_dot():
     assert isinstance(generate_dot(C), str)
 
 def test_intersting_var():
-    assert not intersting_var(0)
-    assert not intersting_var(1)
+    assert not interesting_var(0)
+    assert not interesting_var(1)
