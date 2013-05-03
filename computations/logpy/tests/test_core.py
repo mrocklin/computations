@@ -1,7 +1,7 @@
 from computations.core import Computation
 import computations.logpy.core
 
-from logpy import run, eq
+from logpy import run, eq, membero
 from logpy.variables import variables
 from logpy.assoccomm import eq_assoccomm as eqac
 
@@ -30,3 +30,11 @@ def test_composite_commutativity():
 
     with variables(0):
         assert run(0, 0, eqac(c, e)) == (3,)
+
+def test_reification_of_computations():
+    d = Computation((1, 2), (0,)) + Computation((0, 4), (5, 6))
+
+    with variables(0):
+        assert set(run(0, d, membero(0, (10, 11)))) == set((
+                Computation((1, 2), (10,)) + Computation((10, 4), (5, 6)),
+                Computation((1, 2), (11,)) + Computation((11, 4), (5, 6))))
