@@ -269,3 +269,8 @@ class TokenComputation(Computation):
     @property
     def includes(self):
         return self.comp.includes
+
+    def _write_dot(self):
+        from computations.dot.core import nstr
+        return '"%s" [shape=box, label="%s"]'%(nstr(self),
+                nstr(self.comp.__class__.__name__))
