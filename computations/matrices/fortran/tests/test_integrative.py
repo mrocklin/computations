@@ -2,9 +2,13 @@ from sympy import Symbol, MatrixSymbol, Q, assuming, ZeroMatrix
 import numpy as np
 
 from computations.matrices.fortran.core import build
-from computations.matrices.blas import GEMM, SYRK
+from computations.matrices.blas import GEMM, SYRK, AXPY
 from computations.matrices.lapack import POSV
-
+from computations.matrices.fftw import FFTW, IFFTW
+from computations.matrices.elemental import ElemProd
+from sympy.matrices.expressions.fourier import DFT
+from sympy.matrices.expressions.hadamard import HadamardProduct as HP
+from computations.dot import show
 
 n = Symbol('n')
 m = Symbol('m')
@@ -12,6 +16,16 @@ A = MatrixSymbol('A', n, n)
 y = MatrixSymbol('y', n, 1)
 X = MatrixSymbol('X', n, m)
 
+def test_es_toy():
+    K = MatrixSymbol('K',n,1)
+    phi = MatrixSymbol('phi', n, 1)
+    V = MatrixSymbol('V',n,1)
+    
+    c = AXPY(1.0, HP(K,phi), DFT(n).T*HP(V,DFT(n)*phi)) + ElemProd(K,phi) + IFFTW(HP(V, DFT(n) * phi)) + FFTW(phi) + ElemProd(V, DFT(n) * phi)
+#    show(c) 
+    with assuming(Q.complex_elements(phi), Q.real_elements(K), Q.real_elements(V)):
+        f = build(c, [K,V,phi], [HP(K,phi) + DFT(n).T * HP(V,DFT(n) * phi)], modname='es', filename='es.f90')
+    
 def test_POSV():
     c = POSV(A, y)
     with assuming(Q.real_elements(A), Q.real_elements(y)):
@@ -44,8 +58,6 @@ def test_linear_regression():
     assert np.allclose(expected, f(nX, ny))
 
 def test_fftw():
-    from computations.matrices.fftw import FFTW
-    from sympy.matrices.expressions.fourier import DFT
     c = FFTW(y)
     with assuming(Q.complex_elements(y)):
         f = build(c, [y], [DFT(y)], modname='fftw', filename='fftw.f90')
@@ -56,8 +68,6 @@ def test_fftw():
     assert np.allclose(expected, x)
 
 def test_fftw_inverse():
-    from computations.matrices.fftw import FFTW, IFFTW
-    from sympy.matrices.expressions.fourier import DFT
     c = FFTW(y)
     with assuming(Q.complex(y)):
         f = build(c, [y], [DFT(y)], modname='fftw', filename='fftw.f90')

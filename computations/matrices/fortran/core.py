@@ -112,8 +112,8 @@ def generate(comp, inputs, outputs, types=dict(), name='f'):
                                             for c in computations])
     subroutine_header = comp.fortran_header(name, input_tokens, output_tokens)
 
-    use_statements = join(comp.fortran_use_statements())
-    include_statements = join(comp.fortran_include_statements())
+    use_statements = join(unique(comp.fortran_use_statements()))
+    include_statements = join(unique(comp.fortran_include_statements()))
 
     function_interfaces = join([c.comp.fortran_function_interface()
                                             for c in computations])
