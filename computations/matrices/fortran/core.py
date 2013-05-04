@@ -1,6 +1,8 @@
 from computations.core import Computation, unique, CompositeComputation
 from computations.inplace import TokenComputation, ExprToken, inplace_compile
 from computations.util import groupby, remove
+from computations.matrices.fortran.util import (join, is_number, constant_arg,
+        update_class)
 from functools import partial
 from sympy import MatrixExpr, Expr, ZeroMatrix, assuming, ask, Q
 
@@ -56,16 +58,8 @@ class FortranPrintableComputation(object):
         return ''
 
 
-def update_class(old, new):
-    for k, v in new.__dict__.items():
-        if '__' not in k:
-            setattr(old, k, v)
-
 update_class(Computation, FortranPrintableComputation)
 update_class(TokenComputation, FortranPrintableTokenComputation)
-
-def join(L):
-    return '  ' + '\n  '.join([x for x in L if x])
 
 def dtype_of(expr, *assumptions):
     if hasattr(expr, 'fortran_type'):
@@ -316,16 +310,6 @@ def destroy_variable(v):
     if hasattr(v.expr, 'fortran_destroy'):
         return v.expr.fortran_destroy(v.token)
     return ''
-
-def is_number(x):
-    return (isinstance(x, (int, float)) or
-            isinstance(x, Expr) and x.is_Number)
-
-def constant_arg(arg):
-    """ Is this argument a constant?
-
-    If so we don't want to include it as a parameter """
-    return is_number(arg) or isinstance(arg, ZeroMatrix)
 
 def assumed_dimension_declaration(dimen):
     return "integer :: %s" % str(dimen)
