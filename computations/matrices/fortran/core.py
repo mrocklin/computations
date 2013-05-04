@@ -6,11 +6,15 @@ from computations.matrices.fortran.util import (join, is_number, constant_arg,
 from functools import partial
 from sympy import MatrixExpr, Expr, ZeroMatrix, assuming, ask, Q
 
-with open('computations/matrices/fortran/template.f90') as f:
+import computations
+comp_dir = computations.__file__
+comp_dir = comp_dir[:comp_dir.rfind('/')+1]
+
+with open(comp_dir + 'matrices/fortran/template.f90') as f:
     template = f.read()
-with open('computations/matrices/fortran/f2py-template.f90') as f:
+with open(comp_dir + 'matrices/fortran/f2py-template.f90') as f:
     f2py_template = f.read()
-with open('computations/matrices/fortran/module-template.f90') as f:
+with open(comp_dir + 'matrices/fortran/module-template.f90') as f:
     module_template = f.read()
 
 class FortranPrintableTokenComputation(object):
