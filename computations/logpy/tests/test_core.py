@@ -1,8 +1,7 @@
 from computations.core import Computation
 import computations.logpy.core
 
-from logpy import run, eq, membero
-from logpy.variables import variables
+from logpy import run, eq, membero, variables
 from logpy.assoccomm import eq_assoccomm as eqac
 
 def test_computation():

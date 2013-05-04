@@ -1,9 +1,7 @@
 from computations.matrices.blas import GEMM, SYRK
 import computations.matrices.logpy.core
 
-from logpy import run, eq, membero
-from logpy.unify import unify, reify
-from logpy.variables import variables
+from logpy import run, eq, membero, unify, reify, variables
 from logpy.assoccomm import eq_assoccomm as eqac
 
 from sympy import MatrixSymbol, Symbol
