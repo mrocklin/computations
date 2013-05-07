@@ -44,7 +44,7 @@ class MatrixCall(Computation):
     def outputs(self):
         cls = self.__class__
         mapping = dict(zip(cls._inputs, self.inputs))
-        return tuple(canonicalize(o.xreplace(mapping)) for o in cls._outputs)
+        return tuple([canonicalize(o.xreplace(mapping)) for o in cls._outputs])
 
     basetype = property(lambda self:  basetypes[self.typecode])
     _in_types = property(lambda self: (None,)*len(self._inputs))
