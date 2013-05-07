@@ -148,7 +148,7 @@ def tokenize_one(mathcomp, tokenizer):
     return TokenComputation(mathcomp, map(tokenizer, mathcomp.inputs),
                              map(tokenizer, mathcomp.outputs))
 
-def tokenize(mathcomp, tokenizer):
+def tokenize(mathcomp, tokenizer=None):
     """ Transform mathematical computation into a computation of ExprTokens
 
     This is the switch from pure math to thinking about variables and memory
@@ -158,6 +158,7 @@ def tokenize(mathcomp, tokenizer):
     See Also
         tokenize_one
     """
+    tokenizer = tokenizer or make_getname()
     if not isinstance(mathcomp, CompositeComputation):
         return tokenize_one(mathcomp, tokenizer)
     return CompositeComputation(*[tokenize_one(c, tokenizer)
