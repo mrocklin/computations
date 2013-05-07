@@ -40,7 +40,7 @@ digraph{
 }
 '''
 
-defaults={'orientation': 'TD'}
+defaults={'rankdir': 'TD'}
 
 def generate_dot(computation, **kwargs):
     """ Generate DOT string for computation """
