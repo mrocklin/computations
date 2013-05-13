@@ -2,6 +2,9 @@
 def interesting_var(x):
     if any(x == y for y in [0, 1]):
         return False
+    from computations.inplace import ExprToken
+    if isinstance(x, ExprToken):
+        return interesting_var(x.expr)
     return True
 
 def interesting_edge((a, b)):
