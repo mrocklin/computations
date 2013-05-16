@@ -43,8 +43,13 @@ class Profile(Computation):
     def fortran_call(self, input_names, output_names):
         duration, rate, max, start, end = output_names[:5]
         comp_output_names = output_names[5:]
-        template = ('  call system_clock ( %(start)s, %(rate)s, %(max)s )\n  ' +
+        template = ('call system_clock ( %(start)s, %(rate)s, %(max)s )\n  ' +
                 self.comp.fortran_call(input_names, comp_output_names) +
                 '\n  call system_clock ( %(end)s,   %(rate)s, %(max)s )\n'
                 '  %(duration)s = real(%(end)s - %(start)s) / real(%(rate)s)')
         return template % locals()
+
+    @property
+    def inplace(self):
+        return dict((k+len(self.time_vars), v)
+                    for k, v in self.comp.inplace.items())
