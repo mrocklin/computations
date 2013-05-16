@@ -17,6 +17,8 @@ def test_Profile():
 
     assert isinstance(s, str)
     assert pgemm.inplace == {5: 4}
+    assert pgemm.libs == gemm.libs
+    assert pgemm.includes == gemm.includes
 
 def test_execution():
     from computations.matrices.fortran.core import build
@@ -24,7 +26,7 @@ def test_execution():
         f = build(pgemm, [X, Y], [pgemm.duration])
     assert callable(f)
     import numpy as np
-    nX, nY = np.random.rand(1000, 1000), np.random.rand(1000, 1000)
+    nX, nY = np.random.rand(500, 500), np.random.rand(500, 500)
     result = f(nX, nY)
     assert isinstance(result, float)
     assert result > 0

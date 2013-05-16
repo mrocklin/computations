@@ -53,3 +53,12 @@ class Profile(Computation):
     def inplace(self):
         return dict((k+len(self.time_vars), v)
                     for k, v in self.comp.inplace.items())
+
+
+    @property
+    def libs(self):
+        return self.comp.libs
+
+    @property
+    def includes(self):
+        return self.comp.includes
