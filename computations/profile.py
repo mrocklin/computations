@@ -26,7 +26,7 @@ class Profile(Computation):
     def __init__(self, comp, duration=None):
         self.comp = comp
         self.duration = duration or new_duration()
-        self.ticks = Ticks('start'), Ticks('end')
+        self.ticks = Ticks('start_time'), Ticks('end_time')
 
     inputs  = property(lambda self: self.comp.inputs)
     time_vars = property(lambda self: (self.duration, Rate, Max) + self.ticks)
