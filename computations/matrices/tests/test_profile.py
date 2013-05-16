@@ -23,7 +23,8 @@ def test_Profile():
 def test_execution():
     from computations.matrices.fortran.core import build
     with assuming(Q.real_elements(X), Q.real_elements(Y)):
-        f = build(pgemm, [X, Y], [pgemm.duration])
+        f = build(pgemm, [X, Y], [pgemm.duration], filename='profile.f90',
+                modname='profile')
     assert callable(f)
     import numpy as np
     nX, nY = np.random.rand(500, 500), np.random.rand(500, 500)
