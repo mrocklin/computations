@@ -1,5 +1,5 @@
 from computations.util import (toposort, unique, reverse_dict, merge, groupby,
-        remove)
+        remove, iterable)
 
 
 def test_unique():
@@ -29,3 +29,9 @@ def test_groupby():
 
 def test_remove():
     assert remove(str.islower, 'AaBb') == ['A', 'B']
+
+def test_iterable():
+    assert iterable([1,2,3])
+    assert not iterable(3)
+    assert iterable((1,2,3))
+    assert iterable(set((1,2,3)))

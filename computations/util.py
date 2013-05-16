@@ -87,3 +87,10 @@ def groupby(f, coll):
 
 def remove(predicate, collection):
     return [item for item in collection if not predicate(item)]
+
+def iterable(x):
+    try:
+        iter(x)
+        return True
+    except:
+        return False
