@@ -5,6 +5,7 @@ from computations.matrices.blas import GEMM
 
 n = Symbol('n')
 X = MatrixSymbol('X', n, n)
+Y = MatrixSymbol('Y', n, n)
 y = MatrixSymbol('y', n, 1)
 inputs = [X, y]
 outputs = [X*y]
@@ -88,3 +89,11 @@ def test_numerics():
     nX, ny = np.ones((5, 5)), np.ones(5)
     result = np.matrix(nX) * np.matrix(ny).T
     assert np.allclose(f(nX, ny), result)
+
+def test_tokens_of():
+    gemm = GEMM(1, X, Y, 0, Y)
+    igemm = inplace_compile(gemm)
+    (computations, vars, input_tokens, input_vars, output_tokens, tokens,
+                        dimens) = tokens_of(igemm, [X, Y], [X*Y])
+
+    assert list(input_tokens) == ['X', 'Y']
