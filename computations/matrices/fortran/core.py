@@ -1,6 +1,6 @@
 from computations.core import Computation, unique, CompositeComputation
 from computations.inplace import TokenComputation, ExprToken, inplace_compile
-from computations.util import groupby, remove
+from computations.util import groupby, remove, iterable
 from computations.matrices.fortran.util import (join, is_number, constant_arg,
         update_class)
 from functools import partial
@@ -84,7 +84,7 @@ def tokens_of(comp, inputs, outputs):
     computations = comp.toposort()
     vars = list(comp.variables)
 
-    input_tokens  = sorted_tokens(comp.inputs, inputs)
+    input_tokens  = sorted_tokens(unique(comp.inputs), inputs)
     input_vars = [v for v in vars if v.token in input_tokens]
     output_tokens = sorted_tokens(comp.outputs, outputs)
     tokens = list(set(map(gettoken, vars)))
@@ -203,6 +203,10 @@ def is_token_computation(c):
 
 def build(comp, inputs, outputs, types=dict(), name='f', modname='mod',
         filename='tmp.f90'):
+    if not iterable(inputs):
+        raise TypeError("Inputs not iterable")
+    if not iterable(outputs):
+        raise TypeError("Outputs not iterable")
     if not is_token_computation(comp):
         from computations.matrices.blas import COPY
         comp = inplace_compile(comp, Copy=COPY)
