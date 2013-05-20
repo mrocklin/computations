@@ -6,16 +6,16 @@ class Ticks(Symbol):
     def fortran_type(self):
         return 'integer'
 
-class Duration(Symbol):
+class Time(Symbol):
     def fortran_type(self):
         return 'real*8'
 
 class ClockVar(Ticks): pass
 
-def new_duration():
-    new_duration.i += 1
-    return Duration('time_%d' % new_duration.i)
-new_duration.i = 0
+def new_time():
+    new_time.i += 1
+    return Time('time_%d' % new_time.i)
+new_time.i = 0
 
 
 Rate = ClockVar('clock_rate')
@@ -25,7 +25,7 @@ class Profile(Computation):
     """ A Computation to profile another computation """
     def __init__(self, comp, duration=None):
         self.comp = comp
-        self.duration = duration or new_duration()
+        self.duration = duration or new_time()
         self.ticks = Ticks('start_time'), Ticks('end_time')
 
     inputs  = property(lambda self: self.comp.inputs)
@@ -34,11 +34,11 @@ class Profile(Computation):
 
     def arguments(self, inputs, outputs):
         subinputs = inputs
-        duration, rate, max, start, end = outputs[:5]
-        suboutputs = outputs[5:]
+        n = len(self.time_vars)
+        time_vars, suboutputs = outputs[:n], outputs[:n]
         subarguments = self.comp.arguments(subinputs, suboutputs)
 
-        return (duration, start, end, rate, max) + tuple(subarguments)
+        return tuple(time_vars) + tuple(subarguments)
 
     def fortran_call(self, input_names, output_names):
         duration, rate, max, start, end = output_names[:5]
@@ -62,3 +62,30 @@ class Profile(Computation):
     @property
     def includes(self):
         return self.comp.includes
+
+class ProfileMPI(Profile):
+    def __init__(self, comp, duration=None):
+        self.comp = comp
+        self.duration = duration or new_time()
+        self._time_vars = self.duration, new_time(), new_time()
+
+    inputs  = property(lambda self: self.comp.inputs)
+    time_vars = property(lambda self: self._time_vars)
+    outputs = property(lambda self: self.time_vars + self.comp.outputs)
+
+    @property
+    def libs(self):
+        return self.comp.libs + ['mpi']
+
+    @property
+    def includes(self):
+        return self.comp.includes + ['mpif']
+
+    def fortran_call(self, input_names, output_names):
+        duration, start, end = output_names[:3]
+        comp_output_names = output_names[3:]
+        template = ('%(start)s = MPI_Wtime()\n  ' +
+                self.comp.fortran_call(input_names, comp_output_names) +
+                '\n  %(end)s = MPIWtime()\n'
+                '  %(duration)s = %(end)s - %(start)s')
+        return template % locals()
