@@ -1,6 +1,9 @@
 from sympy import Symbol, MatrixSymbol, Q, assuming
 from computations.matrices.blas import GEMM
 from computations.profile import Profile
+from computations.core import CompositeComputation
+from computations.matrices.fortran.core import build
+import numpy as np
 n = Symbol('n')
 X = MatrixSymbol('X', n, n)
 Y = MatrixSymbol('Y', n, n)
@@ -21,12 +24,10 @@ def test_Profile():
     assert pgemm.includes == gemm.includes
 
 def test_execution():
-    from computations.matrices.fortran.core import build
     with assuming(Q.real_elements(X), Q.real_elements(Y)):
         f = build(pgemm, [X, Y], [pgemm.duration], filename='profile.f90',
                 modname='profile')
     assert callable(f)
-    import numpy as np
     nX, nY = np.random.rand(500, 500), np.random.rand(500, 500)
     result = f(nX, nY)
     assert isinstance(result, float)
@@ -38,5 +39,5 @@ def test_linregress():
     with assuming(*assumptions):
         f = build(cc, [X, y], [comp.duration for comp in cc.computations])
     nX, ny = np.random.rand(500, 500), np.random.rand(500, 1)
-    t1, t2, t3 = f(nX, nY)
+    t1, t2, t3 = f(nX, ny)
     assert all(isinstance(t, float) for t in (t1, t2, t3))
