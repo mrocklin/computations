@@ -31,3 +31,12 @@ def test_execution():
     result = f(nX, nY)
     assert isinstance(result, float)
     assert result > 0
+
+def test_linregress():
+    from computations.matrices.examples.linregress import c, assumptions, X, y
+    cc = CompositeComputation(*map(Profile, c.toposort()))
+    with assuming(*assumptions):
+        f = build(cc, [X, y], [comp.duration for comp in cc.computations])
+    nX, ny = np.random.rand(500, 500), np.random.rand(500, 1)
+    t1, t2, t3 = f(nX, nY)
+    assert all(isinstance(t, float) for t in (t1, t2, t3))
