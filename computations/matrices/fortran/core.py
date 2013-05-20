@@ -170,11 +170,13 @@ def generate_f2py_header(comp, inputs, outputs, types=dict(), name='f'):
     return f2py_template % locals()
 
 
-def generate_module(*args, **kwargs):
+def generate_module(comp, *args, **kwargs):
     module_name = kwargs.pop('modname', 'mod')
     generate_fns = kwargs.get('generate_fns', [generate, generate_f2py_header])
 
-    subroutines = '\n\n'.join(g(*args, **kwargs) for g in generate_fns)
+    includes = join("include '%s'" % inc for inc in comp.includes)
+
+    subroutines = '\n\n'.join(g(comp, *args, **kwargs) for g in generate_fns)
 
     return module_template % locals()
 
