@@ -86,6 +86,6 @@ class ProfileMPI(Profile):
         comp_output_names = output_names[3:]
         template = ('%(start)s = MPI_Wtime()\n  ' +
                 self.comp.fortran_call(input_names, comp_output_names) +
-                '\n  %(end)s = MPIWtime()\n'
+                '\n  %(end)s = MPI_Wtime()\n'
                 '  %(duration)s = %(end)s - %(start)s')
         return template % locals()
