@@ -174,7 +174,7 @@ def generate_module(comp, *args, **kwargs):
     module_name = kwargs.pop('modname', 'mod')
     generate_fns = kwargs.get('generate_fns', [generate, generate_f2py_header])
 
-    includes = join("include '%s'" % inc for inc in comp.includes)
+    includes = join("include '%s.h'" % inc for inc in comp.includes)
 
     subroutines = '\n\n'.join(g(comp, *args, **kwargs) for g in generate_fns)
 
