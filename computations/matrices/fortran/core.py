@@ -180,6 +180,12 @@ def generate_module(comp, *args, **kwargs):
 
     return module_template % locals()
 
+
+# <KLUDGE>
+extra_flags_pre = "" # -Wl,-Bsymbolic-functions -Wl,-z,relro "
+extra_flags_post = " -I/usr/include/mpich2 -I/usr/include/mpich2 -L/usr/lib -lmpichf90 -lmpichf90 -lmpich -lopa -lmpl -lrt -lcr -lpthread"
+# <\KLUDGE>
+
 default_includes = ['/usr/include']
 def compile(source, filename, modname='mod',
             libs=[], includes=[]):
@@ -190,8 +196,10 @@ def compile(source, filename, modname='mod',
     includes = includes + default_includes
     libstr = ' '.join('-l'+lib for lib in libs)
     incstr = ' '.join('-I'+i for i in includes)
-    command = ('f2py -c %(filename)s -m %(modname)s '
-               '%(libstr)s %(incstr)s') % locals()
+    command = 'f2py -c '
+    command += extra_flags_pre # KLUDGE
+    command += '%(filename)s -m %(modname)s %(libstr)s %(incstr)s' % locals()
+    command += extra_flags_post # KLUDGE
     pipe = os.popen(command)
     text = pipe.read()
     if "Error" in text:

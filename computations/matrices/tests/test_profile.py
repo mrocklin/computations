@@ -44,7 +44,7 @@ def test_execution():
 
 def test_linregress():
     from computations.matrices.examples.linregress import c, assumptions, X, y
-    cc = CompositeComputation(*map(Profile, c.toposort()))
+    cc = CompositeComputation(*map(ProfileMPI, c.toposort()))
     with assuming(*assumptions):
         f = build(cc, [X, y], [comp.duration for comp in cc.toposort()],
                 filename='profile_linregress.f90', modname='profile_linregress')
