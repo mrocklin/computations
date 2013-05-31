@@ -2,7 +2,7 @@ from sympy import Symbol, MatrixSymbol, Q, assuming, ZeroMatrix
 import numpy as np
 
 from computations.matrices.fortran.core import build
-from computations.matrices.blas import GEMM, SYRK, AXPY
+from computations.matrices.blas import GEMM, SYRK, AXPY, SYMM
 from computations.matrices.lapack import POSV
 from computations.matrices.fftw import FFTW, IFFTW
 from computations.matrices.elemental import ElemProd
@@ -20,12 +20,12 @@ def test_es_toy():
     K = MatrixSymbol('K',n,1)
     phi = MatrixSymbol('phi', n, 1)
     V = MatrixSymbol('V',n,1)
-    
+
     c = AXPY(1.0, HP(K,phi), DFT(n).T*HP(V,DFT(n)*phi)) + ElemProd(K,phi) + IFFTW(HP(V, DFT(n) * phi)) + FFTW(phi) + ElemProd(V, DFT(n) * phi)
-#    show(c) 
+#    show(c)
     with assuming(Q.complex_elements(phi), Q.real_elements(K), Q.real_elements(V)):
         f = build(c, [K,V,phi], [HP(K,phi) + DFT(n).T * HP(V,DFT(n) * phi)], modname='es', filename='es.f90')
-    
+
 def test_POSV():
     c = POSV(A, y)
     with assuming(Q.real_elements(A), Q.real_elements(y)):
@@ -49,13 +49,14 @@ def test_linear_regression():
         f = build(c, [X, y], [beta],
                     modname='linregress', filename='linregress.f90')
 
-    nX = np.asarray([[2, 1], [1, 2]], dtype='float64').reshape((2, 2))
-    ny = np.ones(2)
+    nX = np.asarray([[1, 2], [3, 4], [5, 7]], dtype='float64', order='F')
+    ny = np.asarray([[1], [1], [1]], dtype='float64', order='F')
 
     mX = np.matrix(nX)
-    my = np.matrix(ny).T
-    expected = np.linalg.solve(mX.T*mX, mX.T*my)
-    assert np.allclose(expected, f(nX, ny))
+    my = np.matrix(ny)
+    expected = np.asarray(np.linalg.solve(mX.T*mX, mX.T*my)).squeeze()
+    result = f(nX, ny)
+    assert np.allclose(expected, result)
 
 def test_fftw():
     c = FFTW(y)
@@ -70,7 +71,7 @@ def test_fftw():
 def test_fftw_inverse():
     c = FFTW(y)
     with assuming(Q.complex(y)):
-        f = build(c, [y], [DFT(y)], modname='fftw', filename='fftw.f90')
+        f = build(c, [y], [DFT(y)], modname='fftw2', filename='fftw2.f90')
 
     c = IFFTW(y)
     with assuming(Q.complex(y)):
@@ -82,3 +83,16 @@ def test_fftw_inverse():
     fi(x)
     assert np.allclose(expected, x)
 
+def test_SYMM():
+    with assuming(Q.real_elements(A), Q.real_elements(X), Q.symmetric(A)):
+        f = build(SYMM(1.0, A, X, 0.0, X), [A, X], [A*X], modname='symmtest',
+                filename='symmtest.f90')
+
+    nA = np.asarray([[1, 2], [2, 1]], dtype=np.float64, order='F')
+    nX = np.asarray([[1], [1]], dtype=np.float64, order='F')
+    expected = np.asarray([[3.], [3.]])
+    print nX
+    f(nA, nX)
+    print nX
+    print expected
+    assert np.allclose(expected, nX)
