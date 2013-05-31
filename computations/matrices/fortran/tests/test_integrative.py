@@ -85,28 +85,22 @@ def test_fftw_inverse():
 
 def test_SYMM():
     with assuming(Q.real_elements(A), Q.real_elements(X), Q.symmetric(A)):
-        f = build(SYMM(1.0, A, X, 0.0, X), [A, X], [A*X], modname='symmtest',
-                filename='symmtest.f90')
+        f = build(SYMM(1.0, A, X, 0.0, ZeroMatrix(A.rows, X.cols)),
+                [A, X], [A*X], modname='symmtest', filename='symmtest.f90')
 
     nA = np.asarray([[1, 2], [2, 1]], dtype=np.float64, order='F')
     nX = np.asarray([[1], [1]], dtype=np.float64, order='F')
     expected = np.asarray([[3.], [3.]])
-    print nX
-    f(nA, nX)
-    print nX
-    print expected
-    assert np.allclose(expected, nX)
+    result = f(nA, nX)
+    assert np.allclose(expected, result)
 
 def test_GEMM():
     with assuming(Q.real_elements(A), Q.real_elements(X)):
-        f = build(GEMM(1.0, A, X, 0.0, X), [A, X], [A*X], modname='gemmtest',
-                filename='gemmtest.f90')
+        f = build(GEMM(1.0, A, X, 0.0, ZeroMatrix(A.rows, X.cols)),
+                [A, X], [A*X], modname='gemmtest', filename='gemmtest.f90')
 
     nA = np.asarray([[1, 2], [3, 4]], dtype=np.float64, order='F')
     nX = np.asarray([[1, 1], [1, 1]], dtype=np.float64, order='F')
     expected = np.asarray([[3., 3.], [7., 7.]])
-    print nX
-    f(nA, nX)
-    print nX
-    print expected
-    assert np.allclose(expected, nX)
+    result = f(nA, nX)
+    assert np.allclose(expected, result)
