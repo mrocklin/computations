@@ -121,9 +121,9 @@ def generate(comp, inputs, outputs, types=dict(), name='f'):
 
     assumed_dim_declarations  = map(assumed_dimension_declaration, dimens)
 
-    variable_declarations = join([
+    variable_declarations = join(sorted([
         declare_variable(token, comp, types, inputs, outputs)
-        for token in (set(tokens) - set(input_tokens + output_tokens))]
+        for token in (set(tokens) - set(input_tokens + output_tokens))])
         + assumed_dim_declarations)
 
     dimen_inits = map(dimension_initialization,
