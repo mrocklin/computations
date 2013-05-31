@@ -1,6 +1,9 @@
 
 def interesting_var(x):
-    if any(x == y for y in [0, 1]):
+    if isinstance(x, (float, int)):
+        return False
+    from sympy import Number, ZeroMatrix
+    if isinstance(x, (Number, ZeroMatrix)):
         return False
     from computations.inplace import ExprToken
     if isinstance(x, ExprToken):

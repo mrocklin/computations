@@ -14,3 +14,5 @@ def test_dot():
 def test_intersting_var():
     assert not interesting_var(0)
     assert not interesting_var(1)
+    assert not interesting_var(1.0)
+    assert not interesting_var(2.0)
