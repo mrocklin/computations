@@ -217,6 +217,14 @@ def remove_single_copies(comp):
     return CompositeComputation(*[replace_tokens(c, switch) for c in computations
                                             if c not in single_copies])
 
+def remove_zero_copies(comp, is_zero=lambda e: not e):
+    """ Remove Copies of Zero """
+    if not isinstance(comp, CompositeComputation):
+        return comp
+    def condition(comp):
+        return not (issubclass(comp.op, Copy) and is_zero(comp.inputs[0].expr))
+    return CompositeComputation(*filter(condition, comp.computations))
+
 def inplace_compile(comp, **kwargs):
     """ Compile a mathematical computation into a nice inplace one
 
@@ -234,7 +242,8 @@ def inplace_compile(comp, **kwargs):
     stage2 = purify(stage1, tokenizer, **kwargs)
     stage3 = remove_single_copies(stage2)
     stage4 = inplace_tokenize(stage3)
-    return stage4
+    stage5 = remove_zero_copies(stage4)
+    return stage5
 
 class TokenComputation(Computation):
 

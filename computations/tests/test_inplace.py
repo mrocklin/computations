@@ -1,7 +1,7 @@
 from computations.inplace import (make_getname, Copy, inplace,
         purify_one, tokenize_one, ExprToken, tokenize,
         copies_one, purify, inplace_tokenize, remove_single_copies,
-        inplace_compile, TokenComputation, valid_name)
+        inplace_compile, TokenComputation, valid_name, remove_zero_copies)
 from computations.core import CompositeComputation
 
 from computations.example import inc, flipflop
@@ -130,3 +130,10 @@ def test_remove_single_copies():
                 TokenComputation(Copy(1), ['0'], ['1']))
     expected =  TokenComputation(inci(1), ['0'], ['2'])
     assert remove_single_copies(comp) == expected
+
+def test_remove_zero_copies():
+    comp     = (TokenComputation(inci(0), ['1'], ['2']) +
+                TokenComputation(Copy(0), ['0'], ['1']))
+    expected =  TokenComputation(inci(0), ['1'], ['2'])
+    result = remove_zero_copies(comp)
+    assert result == expected
