@@ -19,6 +19,9 @@ class MM(BLAS):
     def __init__(self, alpha, A, B, beta, C, typecode='D'):
         if isinstance(C, ZeroMatrix):
             C = ZeroMatrix(A.rows, B.cols)
+        if isinstance(alpha, int):    alpha = float(alpha)
+        if isinstance(beta, int):     beta = float(beta)
+
         super(MM, self).__init__(alpha, A, B, beta, C, typecode)
 
     _inputs   = (alpha, A, B, beta, C)
@@ -100,6 +103,9 @@ class SYRK(BLAS):
     def __init__(self, alpha, A, beta, D, typecode='D'):
         if isinstance(D, ZeroMatrix):
             D = ZeroMatrix(A.rows, A.rows)
+        if isinstance(alpha, int):    alpha = float(alpha)
+        if isinstance(beta, int):     beta = float(beta)
+
         return super(SYRK, self).__init__(alpha, A, beta, D, typecode)
 
     _inputs = (alpha, A, beta, D)

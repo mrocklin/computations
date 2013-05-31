@@ -11,6 +11,7 @@ def test_GEMM():
     Z = MatrixSymbol('Z', n, n)
     assert GEMM(a, X, Y, b, Z).inputs == (a, X, Y, b, Z)
     assert GEMM(a, X, Y, b, Z).outputs == (a*X*Y+b*Z, )
+    assert GEMM(1, X, Y, 0, Y).inputs[0] == 1.0
     # assert GEMM(1, X, Y, 0, Y).variable_inputs == (X, Y)
 
 def test_transpose_GEMM():
