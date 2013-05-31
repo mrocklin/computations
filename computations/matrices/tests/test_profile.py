@@ -7,7 +7,7 @@ import numpy as np
 n = Symbol('n')
 X = MatrixSymbol('X', n, n)
 Y = MatrixSymbol('Y', n, n)
-gemm = GEMM(1, X, Y, 0, Y)
+gemm = GEMM(1.0, X, Y, 0.0, Y)
 pgemm = Profile(gemm)
 mpipgemm = ProfileMPI(gemm)
 
