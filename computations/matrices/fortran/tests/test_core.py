@@ -62,6 +62,9 @@ def test_dtype_of():
     assert 'real' in dtype_of(X, Q.real_elements(X))
     assert 'complex' in dtype_of(X, Q.complex_elements(X))
 
+    alpha = Symbol('alpha', integer=True)
+    assert 'integer' in dtype_of(alpha)
+
 def test_f2py():
     assert "X(n,n)" in f2py
     assert 'integer, intent(in) :: n' in f2py
