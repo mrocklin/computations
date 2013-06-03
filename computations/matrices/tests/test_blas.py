@@ -99,5 +99,5 @@ def test_COPY_fortran_call():
     assert "(m*n, X, 1, Y, 1)" in call
     assert 'dcopy' in call.lower()
 
-    s = c.fortran_call(['X'], ['Y'])
+    s = '\n'.join(c.fortran_call(['X'], ['Y']))
     assert "(m*n, X, 1, Y, 1)" in s

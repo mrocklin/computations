@@ -136,7 +136,7 @@ def generate(comp, inputs, outputs, types=dict(), name='f'):
     array_allocations = join([allocate_array(v, input_tokens, output_tokens)
                                 for v in unique(vars, key=gettoken)])
 
-    statements = join([c.fortran_call() for c in computations])
+    statements = join(sum([c.fortran_call() for c in computations], []))
 
     variable_destructions = join(map(destroy_variable, vars))
 

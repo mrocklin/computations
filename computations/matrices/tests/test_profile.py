@@ -21,12 +21,12 @@ def test_Profile():
         assert set(p.includes).issuperset(gemm.includes)
 
 def test_just_Profile():
-    s = pgemm.fortran_call("1 X Y 0 Y".split(), "duration rate max start end Y".split())
+    s = '\n'.join(pgemm.fortran_call("1 X Y 0 Y".split(), "duration rate max start end Y".split()))
     assert isinstance(s, str)
     assert pgemm.inplace == {5: 4}
 
 def test_just_ProfileMPI():
-    s = mpipgemm.fortran_call("1 X Y 0 Y".split(), "duration start end Y".split())
+    s = '\n'.join(mpipgemm.fortran_call("1 X Y 0 Y".split(), "duration start end Y".split()))
     assert isinstance(s, str)
     assert mpipgemm.inplace == {3: 4}
     assert 'mpi' in mpipgemm.libs

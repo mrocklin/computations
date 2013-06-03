@@ -75,7 +75,7 @@ class MatrixCall(Computation):
         name_map = dict(zip(self.inputs+self.outputs, input_names+output_names))
         argnames = [print_number(a) if is_number(a) else name_map[a] for a in args]
         codemap = self.codemap(argnames)
-        return self.fortran_template % codemap
+        return [self.fortran_template % codemap]
 
 def fortran_double_str(x):
     if 'e' in str(x):

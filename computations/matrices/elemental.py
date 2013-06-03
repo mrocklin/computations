@@ -16,5 +16,5 @@ class ElemProd(MatrixCall):
         d = {'out_name'  : output_names[0],
              'in_name_1' : input_names[0],
              'in_name_2' : input_names[1] }
-        return ('%(out_name)s = %(in_name_1)s * %(in_name_2)s ') % d 
+        return ['%(out_name)s = %(in_name_1)s * %(in_name_2)s '% d ]
 

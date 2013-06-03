@@ -43,11 +43,11 @@ class Profile(Computation):
     def fortran_call(self, input_names, output_names):
         duration, rate, max, start, end = output_names[:5]
         comp_output_names = output_names[5:]
-        template = ('call system_clock ( %(start)s, %(rate)s, %(max)s )\n  ' +
+        d = locals()
+        return (['call system_clock ( %(start)s, %(rate)s, %(max)s )' % d] +
                 self.comp.fortran_call(input_names, comp_output_names) +
-                '\n  call system_clock ( %(end)s,   %(rate)s, %(max)s )\n'
-                '  %(duration)s = real(%(end)s - %(start)s) / real(%(rate)s)')
-        return template % locals()
+                ['call system_clock ( %(end)s,   %(rate)s, %(max)s )' % d,
+                 '%(duration)s = real(%(end)s - %(start)s) / real(%(rate)s)' % d])
 
     @property
     def inplace(self):
@@ -84,8 +84,8 @@ class ProfileMPI(Profile):
     def fortran_call(self, input_names, output_names):
         duration, start, end = output_names[:3]
         comp_output_names = output_names[3:]
-        template = ('%(start)s = MPI_Wtime()\n  ' +
+        d = locals()
+        return (['%(start)s = MPI_Wtime()' % d] +
                 self.comp.fortran_call(input_names, comp_output_names) +
-                '\n  %(end)s = MPI_Wtime()\n'
-                '  %(duration)s = %(end)s - %(start)s')
-        return template % locals()
+                ['%(end)s = MPI_Wtime()' % d,
+                 '%(duration)s = %(end)s - %(start)s' % d])

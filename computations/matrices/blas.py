@@ -168,4 +168,5 @@ class COPY(BLAS, Copy):
         return inputs + outputs
 
     def fortran_call(self, input_names, output_names):
-        return type(self).fortran_template % self.codemap(input_names+output_names)
+        return [type(self).fortran_template %
+                self.codemap(input_names+output_names)]

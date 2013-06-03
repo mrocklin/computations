@@ -47,9 +47,9 @@ class FFTW(MatrixCall):
                 'in_name': input_names[0],
                 'out_name': output_names[0],
                 'n': self.inputs[0].shape[0]}
-        return ('%(plan_name)s = fftw_plan_dft_1d(%(n)s, %(in_name)s, %(out_name)s, FFTW_FORWARD,FFTW_ESTIMATE) \n'
-                'call fftw_execute_dft(%(plan_name)s, %(in_name)s, %(out_name)s) \n'
-                'call fftw_destroy_plan(%(plan_name)s)') % d
+        return ['%(plan_name)s = fftw_plan_dft_1d(%(n)s, %(in_name)s,%(out_name)s, FFTW_FORWARD,FFTW_ESTIMATE)' % d,
+                'call fftw_execute_dft(%(plan_name)s, %(in_name)s, %(out_name)s)' % d,
+                'call fftw_destroy_plan(%(plan_name)s)' % d]
 
 class IFFTW(MatrixCall):
     inplace ={0:0}
@@ -76,7 +76,7 @@ class IFFTW(MatrixCall):
                 'in_name': input_names[0],
                 'out_name': output_names[0],
                 'n': self.inputs[0].shape[0]}
-        return ('%(plan_name)s = fftw_plan_dft_1d(%(n)s, %(in_name)s, %(out_name)s, FFTW_BACKWARD, FFTW_ESTIMATE) \n'
-                'call fftw_execute_dft(%(plan_name)s, %(in_name)s, %(out_name)s) \n'
-                'call fftw_destroy_plan(%(plan_name)s) \n'
-                '%(out_name)s = %(out_name)s * (1.D0 / %(n)s)') % d
+        return ['%(plan_name)s = fftw_plan_dft_1d(%(n)s, %(in_name)s, %(out_name)s, FFTW_BACKWARD, FFTW_ESTIMATE)' % d,
+                'call fftw_execute_dft(%(plan_name)s, %(in_name)s, %(out_name)s)' % d,
+                'call fftw_destroy_plan(%(plan_name)s)' % d,
+                '%(out_name)s = %(out_name)s * (1.D0 / %(n)s)' % d]
