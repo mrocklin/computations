@@ -1,4 +1,4 @@
-from computations.matrices.io import send, recv
+from computations.matrices.io import send, recv, ReadFromFile, WriteToFile
 from computations.matrices.blas import GEMM, AXPY
 from sympy.matrices.expressions import MatrixSymbol
 from sympy import S
@@ -23,3 +23,12 @@ def test_sendrecv():
     s2 = send('a', 'c', gemm, axpy)
     assert s.tag != s2.tag
 
+def test_read():
+    r = ReadFromFile('filename.txt', A)
+    assert not r.inputs
+    assert A in r.outputs
+
+def test_write():
+    w = WriteToFile('filename.txt', A)
+    assert A in w.inputs
+    assert A not in w.outputs
