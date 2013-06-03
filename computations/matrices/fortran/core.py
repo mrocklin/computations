@@ -5,6 +5,7 @@ from computations.matrices.fortran.util import (join, is_number, constant_arg,
         update_class)
 from functools import partial
 from sympy import MatrixExpr, Expr, ZeroMatrix, assuming, ask, Q
+import os
 
 import computations
 comp_dir = computations.__file__
@@ -187,12 +188,13 @@ extra_flags_post = " -I/usr/include/mpich2 -I/usr/include/mpich2 -L/usr/lib -lmp
 # <\KLUDGE>
 
 default_includes = ['/usr/include']
-def compile(source, filename, modname='mod',
+def compile(source, filename='tmp.f90', modname='mod',
             libs=[], includes=[]):
     with open(filename, 'w') as f:
         f.write(source)
+    compile_file(filename, modname, libs, includes)
 
-    import os
+def compile_file(filename, modname='mod', libs=[], includes=[]):
     includes = includes + default_includes
     libstr = ' '.join('-l'+lib for lib in libs)
     incstr = ' '.join('-I'+i for i in includes)
@@ -206,6 +208,7 @@ def compile(source, filename, modname='mod',
         print command
         print text
         raise ValueError('Did not compile')
+
 
 
 def is_token_computation(c):
