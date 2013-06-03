@@ -104,3 +104,26 @@ def test_GEMM():
     expected = np.asarray([[3., 3.], [7., 7.]])
     result = f(nA, nX)
     assert np.allclose(expected, result)
+
+def test_WriteToFile():
+    from computations.matrices.io import WriteToFile
+    filename = 'test_write.dat'
+    with assuming(Q.real_elements(X)):
+        f = build(WriteToFile(filename, X), [X], [],
+                modname='writetest', filename='writetest.f90')
+
+    data = np.asarray([[1., 2., 3.], [4., 5., 6.]])
+    result = f(data)
+    with open(filename) as f:
+        assert "1.0" in f.read()
+
+def test_ReadFromFile():
+    from computations.matrices.io import ReadFromFile
+    with assuming(Q.real_elements(X)):
+        f = build(ReadFromFile('test_read.dat', X), [], [X],
+                modname='readtest', filename='readtest.f90')
+
+    print "hello World!"
+    result = f()
+    print result
+    assert result[0, 0] == 1.0
