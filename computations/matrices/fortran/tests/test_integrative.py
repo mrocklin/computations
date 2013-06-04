@@ -119,6 +119,7 @@ def test_WriteToFile():
 
 def test_ReadFromFile():
     from computations.matrices.io import ReadFromFile
+    X = MatrixSymbol('X', 2, 3)
     with assuming(Q.real_elements(X)):
         f = build(ReadFromFile('test_read.dat', X), [], [X],
                 modname='readtest', filename='readtest.f90')
@@ -127,3 +128,15 @@ def test_ReadFromFile():
     result = f()
     print result
     assert result[0, 0] == 1.0
+
+def test_ReadWrite():
+    from computations.matrices.io import ReadFromFile, WriteToFile
+    X = MatrixSymbol('X', 2, 3)
+    c = ReadFromFile('test_read.dat', X) + WriteToFile('test_write2.dat', X)
+    with assuming(Q.real_elements(X)):
+        f = build(c, [], [], modname='readwritetest',
+                             filename='readwritetest.f90')
+    f()
+    with open('test_read.dat') as f:
+        with open('test_write2.dat') as g:
+            assert f.read() == g.read()
