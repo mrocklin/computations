@@ -112,3 +112,36 @@ class POSV(LAPACK):
     @staticmethod
     def arguments(inputs, outputs):
         return inputs + (outputs[2],)
+
+class POTRS(LAPACK):
+    _inputs =  (UofCholesky(A), B)
+    _outputs = (A.I*B, INFO)
+    inplace = {0: 1}
+    condition = True
+
+    fortran_template = ("call %(fn)s('%(UPLO)s', %(N)s, %(NRHS)s, %(A)s, "
+            "%(LDA)s, %(B)s, %(LDB)s, %(INFO)s)\n"
+            "  if (%(INFO)s.ne.0) print *, 'POTRS failed at ',%(INFO)s\n")
+
+    @property
+    def outputs(self):
+        from computations.matrices.core import canonicalize
+        INFO = self._outputs[-1]
+        A, B = self.inputs
+        return (canonicalize(A.arg).I*canonicalize(B), INFO)
+
+    def codemap(self, names, assumptions=()):
+        varnames = 'A B INFO'.split()
+        A, B = self.args
+        namemap  = dict(zip(varnames, names))
+        other = {'LDA': LD(A),
+                 'LDB': LD(B),
+                 'N': str(A.shape[0]),
+                 'NRHS': str(B.shape[1]),
+                 'UPLO': 'U',
+                 'fn': self.fnname(self.typecode)}
+        return merge(namemap, other)
+
+    @staticmethod
+    def arguments(inputs, outputs):
+        return inputs + (outputs[1],)

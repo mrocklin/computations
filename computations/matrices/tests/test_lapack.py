@@ -1,4 +1,4 @@
-from computations.matrices.lapack import GESV, POSV, IPIV, LASWP
+from computations.matrices.lapack import GESV, POSV, IPIV, LASWP, POTRS
 from sympy.matrices.expressions import MatrixSymbol
 from computations.matrices.permutation import PermutationMatrix
 from sympy.core import Symbol
@@ -19,6 +19,13 @@ def test_POSV():
     assert posv.outputs[0] == X.I*Y
     assert not POSV.valid(posv.inputs, True)
     assert POSV.valid(posv.inputs, Q.symmetric(X) & Q.positive_definite(X))
+
+def test_POTRS():
+    from sympy.matrices.expressions.factorizations import UofCholesky
+    X = MatrixSymbol('X', n, n)
+    Y = MatrixSymbol('Y', n, m)
+    potrs = POTRS(UofCholesky(X), Y)
+    assert potrs.outputs[0] == X.I*Y
 
 def test_GESV_codemap():
     A = MatrixSymbol('A', n, n)
