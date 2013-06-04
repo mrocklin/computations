@@ -4,21 +4,24 @@ from computations.matrices.examples.kalman import (newmu, newSigma,
 from computations.matrices.blas import GEMM, SYMM
 from computations.matrices.lapack import POSV
 
-from sympy.matrices.expressions import ZeroMatrix
+from sympy.matrices.expressions import ZeroMatrix, Transpose
+from sympy import assuming, Q
 
-Z = H*Sigma*H.T + R
+Z = H*Transpose(H*Sigma) + R
 A = Z.I * (-1.0*data + H*mu)
 B = Z.I * H
 
-c = (SYMM(1.0, Sigma, H.T, 0.0, ZeroMatrix(*H.T.shape)) +
-     GEMM(1.0, H, mu, -1.0, data) +
-     GEMM(1.0, H, Sigma*H.T, 1.0, R) +
-     POSV(Z, H) +
-     POSV(Z, -1.0 * data + H*mu) +
+with assuming(*assumptions):
+    c = (
+         SYMM(1.0, H, Sigma, 0.0, ZeroMatrix(*H.shape)) +
+         GEMM(1.0, H, mu, -1.0, data) +
+         GEMM(1.0, H, Transpose(H*Sigma), 1.0, R) +
+         POSV(Z, H) +
+         POSV(Z, -1.0 * data + H*mu) +
 
-     GEMM(1.0, H.T, A, 0.0, ZeroMatrix(*(H.T*A).shape)) +
-     SYMM(1.0, Sigma, H.T*A, 1.0, mu) +
+         GEMM(1.0, H.T, A, 0.0, ZeroMatrix(*(H.T*A).shape)) +
+         SYMM(1.0, Sigma, H.T*A, 1.0, mu) +
 
-     GEMM(1.0, H.T, B, 0.0, ZeroMatrix(*(H.T*B).shape)) +
-     SYMM(1.0, H.T*B, Sigma, 0.0, ZeroMatrix(*Sigma.shape)) +
-     SYMM(-1.0, Sigma, H.T*B*Sigma, 1.0, Sigma))
+         GEMM(1.0, H.T, B, 0.0, ZeroMatrix(*(H.T*B).shape)) +
+         SYMM(1.0, H.T*B, Sigma, 0.0, ZeroMatrix(*Sigma.shape)) +
+         SYMM(-1.0, Sigma, H.T*B*Sigma, 1.0, Sigma))  # careful, overwrite
