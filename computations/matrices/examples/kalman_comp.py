@@ -2,9 +2,10 @@ from computations.matrices.examples.kalman import (newmu, newSigma,
         assumptions, mu, Sigma, R, H, data, n, k)
 
 from computations.matrices.blas import GEMM, SYMM
-from computations.matrices.lapack import POSV
+from computations.matrices.lapack import POSV, POTRS
 
 from sympy.matrices.expressions import ZeroMatrix, Transpose
+from sympy.matrices.expressions.factorizations import UofCholesky
 from sympy import assuming, Q
 
 Z = H*Transpose(H*Sigma) + R
@@ -17,7 +18,7 @@ with assuming(*assumptions):
          GEMM(1.0, H, mu, -1.0, data) +
          GEMM(1.0, H, Transpose(H*Sigma), 1.0, R) +
          POSV(Z, H) +
-         POSV(Z, -1.0 * data + H*mu) +
+         POTRS(UofCholesky(Z), -1.0 * data + H*mu) +
 
          GEMM(1.0, H.T, A, 0.0, ZeroMatrix(*(H.T*A).shape)) +
          SYMM(1.0, Sigma, H.T*A, 1.0, mu) +
