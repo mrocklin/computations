@@ -74,6 +74,16 @@ def test_SYMM_codemap():
     assert "('L', 'U', n, m, a, A, n, B, n, c, C, n)" in call
     assert 'dsymm' in call.lower()
 
+def test_SYMM_BA():
+    A = MatrixSymbol('A', n, n)
+    B = MatrixSymbol('B', m, n)
+    C = MatrixSymbol('C', m, n)
+    codemap = SYMM(a, B, A, c, C).codemap('aBAcC', Q.symmetric(A))
+    call = SYMM.fortran_template % codemap
+    print call
+    assert "('R', 'U', m, n, a, A, n, B, m, c, C, m)" in call
+
+
 def test_SYRK_codemap():
     A = MatrixSymbol('A', n, k)
     C = MatrixSymbol('C', k, k)

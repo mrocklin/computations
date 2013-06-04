@@ -57,7 +57,6 @@ class MM(BLAS):
                  'LDA': LD(A), 'LDB': LD(B), 'LDC': LD(C),
                  'M':str(A.shape[0]), 'K':str(B.shape[0]), 'N':str(B.shape[1]),
                  'fn': self.fnname(self.typecode),
-                 'SIDE': left_or_right(A, B, Q.symmetric, assumptions),
                  'DIAG': diag(A, assumptions),
                  'UPLO': 'U'} # TODO: symmetric matrices might be stored low
         return merge(namemap, other)
@@ -76,6 +75,25 @@ class SYMM(MM):
     fortran_template = ("call %(fn)s('%(SIDE)s', '%(UPLO)s', %(M)s, %(N)s, "
                         "%(alpha)s, %(A)s, %(LDA)s, %(B)s, %(LDB)s, "
                         "%(beta)s, %(C)s, %(LDC)s)")
+
+    def codemap(self, names, assumptions=True):
+        varnames = 'alpha A B beta C'.split()
+        alpha, A, B, beta, C = self.args
+        side = left_or_right(A, B, Q.symmetric, assumptions)
+        if side == 'R':
+            A, B = B, A
+            varnames[1], varnames[2] = varnames[2], varnames[1]
+        if is_number(names[0]):     names[0] = float(names[0])
+        if is_number(names[3]):     names[3] = float(names[3])
+
+        namemap  = dict(zip(varnames, names))
+        other = {'LDA': LD(A), 'LDB': LD(B), 'LDC': LD(C),
+                 'M':str(C.rows), 'N':str(C.cols),
+                 'fn': self.fnname(self.typecode),
+                 'SIDE': side,
+                 'UPLO': 'U'} # TODO: symmetric matrices might be stored low
+        return merge(namemap, other)
+
 
 class AXPY(BLAS):
     """ Matrix Matrix Addition `alpha X + Y` """
