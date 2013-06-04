@@ -140,3 +140,18 @@ def test_ReadWrite():
     with open('test_read.dat') as f:
         with open('test_write2.dat') as g:
             assert f.read() == g.read()
+
+def test_POTRS():
+    from sympy.matrices.expressions.factorizations import UofCholesky
+    from computations.matrices.lapack import POTRS
+    c = POTRS(UofCholesky(A), X)
+    with assuming(Q.real_elements(A), Q.real_elements(X),
+            Q.positive_definite(A)):
+        f = build(c, [UofCholesky(A), X], [A.I*X], modname='potrs',
+                                                   filename='potrs.f90')
+
+    nA = np.asarray([[1, 0], [0, 1]], dtype=np.float64, order='F')
+    nX = np.asarray([[1, 2], [3, 4]], dtype=np.float64, order='F')
+    expected = np.asarray([[1., 2.], [3., 4.]])
+    f(nA, nX); result = nX
+    assert np.allclose(expected, result)
