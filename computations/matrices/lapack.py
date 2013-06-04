@@ -5,6 +5,7 @@ from computations.matrices.variables import (alpha, beta, n, m, k, C,
         x, a, b)
 from sympy import Q, S, Symbol, Basic
 from sympy.matrices.expressions import MatrixSymbol, MatrixExpr, MatMul
+from sympy.matrices.expressions.factorizations import UofCholesky
 from computations.matrices.permutation import PermutationMatrix
 from computations.util import merge
 
@@ -88,8 +89,8 @@ class LASWP(LAPACK):
 class POSV(LAPACK):
     """ Symmetric Positive Definite Matrix Solve """
     _inputs   = (A, B)
-    _outputs  = (A.I*B, INFO)
-    inplace   = {0: 1}
+    _outputs  = (A.I*B, UofCholesky(A), INFO)
+    inplace   = {0: 1, 1: 0}
     condition = Q.positive_definite(A) & Q.symmetric(A)
 
     fortran_template = ("call %(fn)s('%(UPLO)s', %(N)s, %(NRHS)s, %(A)s, "
@@ -110,4 +111,4 @@ class POSV(LAPACK):
 
     @staticmethod
     def arguments(inputs, outputs):
-        return inputs + (outputs[1],)
+        return inputs + (outputs[2],)
