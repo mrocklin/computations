@@ -18,7 +18,7 @@ def test_ElemProd_code():
     ic = inplace_compile(c)
     with assuming(Q.real_elements(x), Q.real_elements(y)):
         s = generate(ic, [x,y], [HadamardProduct(x,y)])
-    with open('elem_test.f90','w') as f:
+    with open('tmp/elem_test.f90','w') as f:
         f.write(s)
     assert "= X * Y" in s
 

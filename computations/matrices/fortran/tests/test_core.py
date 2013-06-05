@@ -72,10 +72,10 @@ def test_f2py():
     assert not any('call' in line and 'n' in line for line in f2py.split('\n'))
 
 def test_f2py_compile():
-    with open('tmp.f90', 'w') as f:
+    with open('tmp/tmp.f90', 'w') as f:
         f.write(mod)
     import os
-    pipe = os.popen('f2py -c tmp.f90 -m mod -lblas -llapack')
+    pipe = os.popen('f2py -c tmp/tmp.f90 -m mod -lblas -llapack')
     text = pipe.read()
     if "Error" in text:
         print text
@@ -104,7 +104,7 @@ def test_tokens_of():
 def test_generate_mpi_program():
     from computations.matrices.io import ReadFromFile, WriteToFile
     A = MatrixSymbol('A', 10, 10)
-    comp = ReadFromFile('input.txt', A) + WriteToFile('output.txt', A)
+    comp = ReadFromFile('tmp/input.txt', A) + WriteToFile('tmp/output.txt', A)
     icomp = inplace_compile(comp)
     with assuming(Q.real_elements(A)):
         s = generate_mpi_test(icomp, [], [])

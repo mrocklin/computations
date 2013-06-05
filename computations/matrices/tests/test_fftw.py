@@ -17,7 +17,7 @@ def test_code_generation():
     ic = inplace_compile(c)
     with assuming(Q.complex_elements(x)):
         s = generate(ic, [x], [DFT(n)*x])
-    with open('tmp.f90','w') as f:
+    with open('tmp/tmpfftw.f90','w') as f:
       f.write(s)
     assert 'use, intrinsic :: iso_c_binding' in s
     assert "include 'fftw3.f03'" in s

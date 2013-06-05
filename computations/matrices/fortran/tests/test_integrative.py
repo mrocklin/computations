@@ -24,12 +24,13 @@ def test_es_toy():
     c = AXPY(1.0, HP(K,phi), DFT(n).T*HP(V,DFT(n)*phi)) + ElemProd(K,phi) + IFFTW(HP(V, DFT(n) * phi)) + FFTW(phi) + ElemProd(V, DFT(n) * phi)
 #    show(c)
     with assuming(Q.complex_elements(phi), Q.real_elements(K), Q.real_elements(V)):
-        f = build(c, [K,V,phi], [HP(K,phi) + DFT(n).T * HP(V,DFT(n) * phi)], modname='es', filename='es.f90')
+        f = build(c, [K,V,phi], [HP(K,phi) + DFT(n).T * HP(V,DFT(n) * phi)],
+                modname='es', filename='tmp/es.f90')
 
 def test_POSV():
     c = POSV(A, y)
     with assuming(Q.real_elements(A), Q.real_elements(y)):
-        f = build(c, [A, y], [A.I*y], modname='posv', filename='posv.f90')
+        f = build(c, [A, y], [A.I*y], modname='posv', filename='tmp/posv.f90')
 
     nA, ny = np.asarray([[2, 1], [1, 2]], dtype='float64').reshape((2, 2)), np.ones(2)
     mA = np.matrix(nA)
@@ -47,7 +48,7 @@ def test_linear_regression():
 
     with assuming(Q.real_elements(X), Q.real_elements(y)):
         f = build(c, [X, y], [beta],
-                    modname='linregress', filename='linregress.f90')
+                    modname='linregress', filename='tmp/linregress.f90')
 
     nX = np.asarray([[1, 2], [3, 4], [5, 7]], dtype='float64', order='F')
     ny = np.asarray([[1], [1], [1]], dtype='float64', order='F')
@@ -61,7 +62,7 @@ def test_linear_regression():
 def test_fftw():
     c = FFTW(y)
     with assuming(Q.complex_elements(y)):
-        f = build(c, [y], [DFT(y)], modname='fftw', filename='fftw.f90')
+        f = build(c, [y], [DFT(y)], modname='fftw', filename='tmp/fftw.f90')
 
     x = np.zeros(8, dtype='complex')
     expected = np.fft.fft(x)
@@ -71,11 +72,11 @@ def test_fftw():
 def test_fftw_inverse():
     c = FFTW(y)
     with assuming(Q.complex(y)):
-        f = build(c, [y], [DFT(y)], modname='fftw2', filename='fftw2.f90')
+        f = build(c, [y], [DFT(y)], modname='fftw2', filename='tmp/fftw2.f90')
 
     c = IFFTW(y)
     with assuming(Q.complex(y)):
-        fi = build(c, [y], [DFT(y).T], modname='ifftw', filename='ifftw.f90')
+        fi = build(c, [y], [DFT(y).T], modname='ifftw', filename='tmp/ifftw.f90')
 
     x = np.random.random_sample((8,)) + 1j * np.random.random_sample((8,))
     expected = x
@@ -86,7 +87,7 @@ def test_fftw_inverse():
 def test_SYMM():
     with assuming(Q.real_elements(A), Q.real_elements(X), Q.symmetric(A)):
         f = build(SYMM(1.0, A, X, 0.0, ZeroMatrix(A.rows, X.cols)),
-                [A, X], [A*X], modname='symmtest', filename='symmtest.f90')
+                [A, X], [A*X], modname='symmtest', filename='tmp/symmtest.f90')
 
     nA = np.asarray([[1, 2], [2, 1]], dtype=np.float64, order='F')
     nX = np.asarray([[1], [1]], dtype=np.float64, order='F')
@@ -97,7 +98,7 @@ def test_SYMM():
 def test_GEMM():
     with assuming(Q.real_elements(A), Q.real_elements(X)):
         f = build(GEMM(1.0, A, X, 0.0, ZeroMatrix(A.rows, X.cols)),
-                [A, X], [A*X], modname='gemmtest', filename='gemmtest.f90')
+                [A, X], [A*X], modname='gemmtest', filename='tmp/gemmtest.f90')
 
     nA = np.asarray([[1, 2], [3, 4]], dtype=np.float64, order='F')
     nX = np.asarray([[1, 1], [1, 1]], dtype=np.float64, order='F')
@@ -107,10 +108,10 @@ def test_GEMM():
 
 def test_WriteToFile():
     from computations.matrices.io import WriteToFile
-    filename = 'test_write.dat'
+    filename = 'tmp/test_write.dat'
     with assuming(Q.real_elements(X)):
         f = build(WriteToFile(filename, X), [X], [],
-                modname='writetest', filename='writetest.f90')
+                modname='writetest', filename='tmp/writetest.f90')
 
     data = np.asarray([[1., 2., 3.], [4., 5., 6.]])
     result = f(data)
@@ -121,24 +122,22 @@ def test_ReadFromFile():
     from computations.matrices.io import ReadFromFile
     X = MatrixSymbol('X', 2, 3)
     with assuming(Q.real_elements(X)):
-        f = build(ReadFromFile('test_read.dat', X), [], [X],
-                modname='readtest', filename='readtest.f90')
+        f = build(ReadFromFile('tmp/test_read.dat', X), [], [X],
+                modname='readtest', filename='tmp/readtest.f90')
 
-    print "hello World!"
     result = f()
-    print result
     assert result[0, 0] == 1.0
 
 def test_ReadWrite():
     from computations.matrices.io import ReadFromFile, WriteToFile
     X = MatrixSymbol('X', 2, 3)
-    c = ReadFromFile('test_read.dat', X) + WriteToFile('test_write2.dat', X)
+    c = ReadFromFile('tmp/test_read.dat', X) + WriteToFile('tmp/test_write2.dat', X)
     with assuming(Q.real_elements(X)):
         f = build(c, [], [], modname='readwritetest',
-                             filename='readwritetest.f90')
+                             filename='tmp/readwritetest.f90')
     f()
-    with open('test_read.dat') as f:
-        with open('test_write2.dat') as g:
+    with open('tmp/test_read.dat') as f:
+        with open('tmp/test_write2.dat') as g:
             assert f.read() == g.read()
 
 def test_POTRS():
@@ -148,7 +147,7 @@ def test_POTRS():
     with assuming(Q.real_elements(A), Q.real_elements(X),
             Q.positive_definite(A)):
         f = build(c, [UofCholesky(A), X], [A.I*X], modname='potrs',
-                                                   filename='potrs.f90')
+                                                   filename='tmp/potrs.f90')
 
     nA = np.asarray([[1, 0], [0, 1]], dtype=np.float64, order='F')
     nX = np.asarray([[1, 2], [3, 4]], dtype=np.float64, order='F')
