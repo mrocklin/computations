@@ -7,5 +7,3 @@ program mpi_test
     call MPI_Finalize(ierr)
     stop
 end program mpi_test
-
-%(subroutine_definitions)s

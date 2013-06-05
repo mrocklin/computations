@@ -2,15 +2,11 @@ from sympy import MatrixSymbol, Symbol, Q, assuming
 from computations.inplace import inplace_compile
 from computations.matrices.fortran.mpi import rank_switch
 
-def test_generate_mpi_program():
-    from computations.matrices.io import ReadFromFile, WriteToFile
-    from computations.matrices.fortran.mpi import generate_mpi_tester
-    A = MatrixSymbol('A', 10, 10)
-    comp = ReadFromFile('tmp/input.txt', A) + WriteToFile('tmp/output.txt', A)
-    icomp = inplace_compile(comp)
-    with assuming(Q.real_elements(A)):
-        s = generate_mpi_tester(icomp, [], [])
+def test_mpi_test_program():
+    from computations.matrices.fortran.mpi import mpi_test_program
+    s = mpi_test_program('foo')
     assert isinstance(s, str)
+    assert 'call foo()' in s
 
 def test_rank_switch():
     d = {0: 'A', 1: 'B', 2: 'C'}
