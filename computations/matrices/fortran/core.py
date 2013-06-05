@@ -48,7 +48,7 @@ class FortranPrintableComputation(object):
         if isinstance(self, CompositeComputation):
             return sum([c.fortran_include_statements() for c in self.computations], [])
         else:
-            return []
+            return ["include '%s.h'" % inc for inc in self.includes]
 
     def fortran_footer(self, name):
         return 'end subroutine %s'%(name)
