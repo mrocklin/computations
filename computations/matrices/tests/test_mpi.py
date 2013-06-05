@@ -1,4 +1,5 @@
 from computations.matrices.mpi import send, recv
+from computations.matrices.mpi import Send, Recv
 from computations.matrices.blas import GEMM, AXPY
 from sympy.matrices.expressions import MatrixSymbol
 from sympy import ask, Q, assuming
@@ -49,3 +50,21 @@ def test_recv_fortran():
         print a
         print b
         assert streq(a, b)
+
+def test_send_fortran_generate():
+    from computations.inplace import inplace_compile
+    from computations.matrices.fortran.core import generate
+    A = MatrixSymbol('A', 10, 10)
+    s = Send(A, 1)
+    iss = inplace_compile(s)
+    with assuming(Q.real_elements(A)): code = generate(iss, [A], [])
+    assert isinstance(code, str)
+
+def test_recv_fortran_generate():
+    from computations.inplace import inplace_compile
+    from computations.matrices.fortran.core import generate
+    A = MatrixSymbol('A', 10, 10)
+    r = Recv(A, 2)
+    irr = inplace_compile(r)
+    with assuming(Q.real_elements(A)): code = generate(irr, [], [A])
+    assert isinstance(code, str)
