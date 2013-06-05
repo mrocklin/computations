@@ -17,8 +17,6 @@ with open(comp_dir + 'matrices/fortran/f2py-template.f90') as f:
     f2py_template = f.read()
 with open(comp_dir + 'matrices/fortran/module-template.f90') as f:
     module_template = f.read()
-with open(comp_dir + 'matrices/fortran/mpi-program-template.f90') as f:
-    mpi_test_template = f.read()
 
 class FortranPrintableTokenComputation(object):
     def fortran_footer(self, *args):
@@ -182,14 +180,6 @@ def generate_module(comp, *args, **kwargs):
     subroutines = '\n\n'.join(g(comp, *args, **kwargs) for g in generate_fns)
 
     return module_template % locals()
-
-def generate_mpi_test(comp, *args, **kwargs):
-    generate_fns = kwargs.get('generate_fns', [generate])
-    subroutine_name = kwargs.get('name', 'f')
-
-    subroutine_definitions = '\n\n'.join(g(comp, *args, **kwargs) for g in generate_fns)
-
-    return mpi_test_template % locals()
 
 
 # <KLUDGE>
