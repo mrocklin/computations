@@ -8,7 +8,8 @@ def constant_arg(arg):
     """ Is this argument a constant?
 
     If so we don't want to include it as a parameter """
-    return is_number(arg) or isinstance(arg, ZeroMatrix)
+    return (is_number(arg) or isinstance(arg, ZeroMatrix) or 'MPI_' in
+            str(arg))
 
 
 def update_class(old, new):
