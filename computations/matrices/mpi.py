@@ -15,17 +15,13 @@ def new_status():
     return MatrixIntegerSymbol('status_%d' % new_status.i)
 new_status.i = 0
 
-class IntegerSymbol(Symbol):
-    def fortran_type(self):
-        return 'integer'
-
 def new_ierr():
     new_ierr.i += 1
-    return IntegerSymbol('ierr_%d' % new_ierr.i)
+    return Symbol('ierr_%d' % new_ierr.i, integer=True)
 new_ierr.i = 0
 def new_tag():
     new_tag.i += 1
-    return IntegerSymbol('tag_%d' % new_tag.i)
+    return Symbol('tag_%d' % new_tag.i, integer=True)
 new_tag.i = 0
 def new_status():
     new_status.i += 1
@@ -36,12 +32,12 @@ new_status.i = 0
 
 class Send(Computation):
     def __init__(self, data, dest, tag=None, ierr=None):
-        ierr = ierr or new_ierr()
+        self.ierr = ierr or new_ierr()
         self.tag = tag or new_tag()
         self.dest = dest
 
         self.inputs = (data,)
-        self.outputs = (ierr,)
+        self.outputs = (self.ierr,)
 
     def _write_dot(self):
         return '"%s" [shape=diamond, label="%s-->%s"]' % (
@@ -50,13 +46,13 @@ class Send(Computation):
 
 class Recv(Computation):
     def __init__(self, data, source, tag=None, status=None, ierr=None):
-        ierr = ierr or new_ierr()
-        status = status or new_status()
+        self.ierr = ierr or new_ierr()
+        self.status = status or new_status()
         self.tag = tag or new_tag()
         self.source = source
 
         self.inputs = ()
-        self.outputs = (data, ierr, status)
+        self.outputs = (data, self.ierr, self.status)
 
     def _write_dot(self):
         return '"%s" [shape=diamond, label="%s<--%s"]' % (

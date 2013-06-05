@@ -10,6 +10,9 @@ D = MatrixSymbol('D', 3, 5)
 gemm = GEMM(1, A, B, 1, C)
 axpy = AXPY(2, A*B+C, D)
 
+s = send('a', 'b', gemm, axpy)
+r = recv('a', 'b', gemm, axpy)
+
 def test_sendrecv():
     s = send('a', 'b', gemm, axpy)
     r = recv('a', 'b', gemm, axpy)
@@ -21,3 +24,9 @@ def test_sendrecv():
 
     s2 = send('a', 'c', gemm, axpy)
     assert s.tag != s2.tag
+
+def test_types():
+    from computations.matrices.fortran.core import dtype_of
+    assert 'int' in dtype_of(s.ierr)
+    assert 'int' in dtype_of(r.ierr)
+    assert 'int' in dtype_of(r.status)

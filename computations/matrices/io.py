@@ -6,13 +6,9 @@ from computations import Computation
 n, m = map(Symbol, 'nm')
 A = MatrixSymbol('A', n, m)
 
-class IntegerSymbol(Symbol):
-    def fortran_type(self):
-        return 'integer'
-
 def new_fid():
     new_fid.i += 1
-    return IntegerSymbol('fid_%d' % new_fid.i)
+    return Symbol('fid_%d' % new_fid.i, integer=True)
 new_fid.i = 0
 
 class ReadFromFile(Computation):
