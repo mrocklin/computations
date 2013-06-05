@@ -1,6 +1,7 @@
 from computations.matrices.mpi import send, recv
 from computations.matrices.blas import GEMM, AXPY
 from sympy.matrices.expressions import MatrixSymbol
+from sympy import ask, Q, assuming
 
 A = MatrixSymbol('A', 3, 4)
 B = MatrixSymbol('B', 4, 5)
@@ -10,12 +11,10 @@ D = MatrixSymbol('D', 3, 5)
 gemm = GEMM(1, A, B, 1, C)
 axpy = AXPY(2, A*B+C, D)
 
-s = send('a', 'b', gemm, axpy)
-r = recv('a', 'b', gemm, axpy)
+s = send(1, 2, gemm, axpy)
+r = recv(1, 2, gemm, axpy)
 
 def test_sendrecv():
-    s = send('a', 'b', gemm, axpy)
-    r = recv('a', 'b', gemm, axpy)
     assert A*B+C in s.inputs
     assert r.inputs == ()
     assert A*B+C in r.outputs
@@ -30,3 +29,23 @@ def test_types():
     assert 'int' in dtype_of(s.ierr)
     assert 'int' in dtype_of(r.ierr)
     assert 'int' in dtype_of(r.status)
+
+def streq(a, b):
+    canon = lambda s: s.replace(' ', '')
+    return canon(a) == canon(b)
+
+def test_send_fortran():
+    with assuming(*map(Q.real_elements, (A, B, C))):
+        a = s.fortran_call(['A'], ['ierr'])[0]
+        b = "call MPI_SEND( A, 15, MPI_DOUBLE_PRECISION, %d, %d, MPI_COMM_WORLD, ierr)"%(s.dest, s.tag)
+        print a
+        print b
+        assert streq(a, b)
+
+def test_recv_fortran():
+    with assuming(*map(Q.real_elements, (A, B, C))):
+        a = r.fortran_call([], ['A', 'status', 'ierr'])[0]
+        b = "call MPI_RECV( A, 15, MPI_DOUBLE_PRECISION, %d, %d, MPI_COMM_WORLD, status, ierr)"%(r.source, r.tag)
+        print a
+        print b
+        assert streq(a, b)

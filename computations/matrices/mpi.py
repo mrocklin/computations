@@ -30,11 +30,17 @@ def new_status():
 new_status.i = 0
 
 
+mpi_type = {'integer': 'MPI_INTEGER',
+            'real(kind=8)': 'MPI_DOUBLE_PRECISION',
+            'complex(kind=8)': 'MPI_COMPLEX'}
+
 class Send(Computation):
+    """ MPI Synchronous Send Operation """
     def __init__(self, data, dest, tag=None, ierr=None):
         self.ierr = ierr or new_ierr()
         self.tag = tag or new_tag()
         self.dest = dest
+        self.data = data
 
         self.inputs = (data,)
         self.outputs = (self.ierr,)
@@ -43,20 +49,44 @@ class Send(Computation):
         return '"%s" [shape=diamond, label="%s-->%s"]' % (
                 str(self), str(self.__class__.__name__), str(self.dest))
 
+    def fortran_call(self, input_names, output_names):
+        from computations.matrices.fortran.core import dtype_of
+        data, = input_names
+        ierr, = output_names
+        numel = self.data.rows * self.data.cols
+        dtype = mpi_type[dtype_of(self.data)]
+        dest  = self.dest
+        tag   = self.tag
+        return ['call MPI_SEND( %(data)s, %(numel)s, %(dtype)s, %(dest)s, '
+                '%(tag)s, MPI_COMM_WORLD, %(ierr)s)'%locals()]
+
 
 class Recv(Computation):
+    """ MPI Synchronous Recv Operation """
     def __init__(self, data, source, tag=None, status=None, ierr=None):
         self.ierr = ierr or new_ierr()
         self.status = status or new_status()
         self.tag = tag or new_tag()
         self.source = source
+        self.data = data
 
         self.inputs = ()
-        self.outputs = (data, self.ierr, self.status)
+        self.outputs = (data, self.status, self.ierr)
 
     def _write_dot(self):
         return '"%s" [shape=diamond, label="%s<--%s"]' % (
                 str(self), str(self.__class__.__name__), str(self.source))
+
+
+    def fortran_call(self, input_names, output_names):
+        from computations.matrices.fortran.core import dtype_of
+        data, status, ierr = output_names
+        numel  = self.data.rows * self.data.cols
+        dtype  = mpi_type[dtype_of(self.data)]
+        source = self.source
+        tag    = self.tag
+        return ['call MPI_RECV( %(data)s, %(numel)s, %(dtype)s, %(source)s, '
+                '%(tag)s, MPI_COMM_WORLD, %(status)s, %(ierr)s)'%locals()]
 
 
 tagdb = dict()
