@@ -100,3 +100,12 @@ def test_tokens_of():
                         dimens) = tokens_of(igemm, [X, Y], [X*Y])
 
     assert list(input_tokens) == ['X', 'Y']
+
+def test_generate_mpi_program():
+    from computations.matrices.io import ReadFromFile, WriteToFile
+    A = MatrixSymbol('A', 10, 10)
+    comp = ReadFromFile('input.txt', A) + WriteToFile('output.txt', A)
+    icomp = inplace_compile(comp)
+    with assuming(Q.real_elements(A)):
+        s = generate_mpi_test(icomp, [], [])
+    assert isinstance(s, str)
