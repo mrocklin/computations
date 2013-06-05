@@ -59,7 +59,7 @@ class Send(Computation):
         tag   = self.tag
         d = locals()
         return ['call MPI_SEND( %(data)s, %(numel)s, %(dtype)s, %(dest)s, '
-                '%(tag)s, MPI_COMM_WORLD, %(ierr)s)'%d]
+                '%(tag)s, MPI_COMM_WORLD, %(ierr)s)'%d,
                 "if (%(ierr)s .ne. MPI_SUCCESS) print *, 'MPI_SEND Failed'"%d]
 
 
@@ -87,6 +87,7 @@ class Recv(Computation):
         dtype  = mpi_type[dtype_of(self.data)]
         source = self.source
         tag    = self.tag
+        d = locals()
         return ['call MPI_RECV( %(data)s, %(numel)s, %(dtype)s, %(source)s, '
                 '%(tag)s, MPI_COMM_WORLD, %(status)s, %(ierr)s)'%d,
                 "if (%(ierr)s .ne. MPI_SUCCESS) print *, 'MPI_RECV Failed'"%d]
