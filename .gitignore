@@ -1,2 +1,6 @@
 *.pyc
 *.so
+tmp
+*.dot
+*.pdf
+*.out
