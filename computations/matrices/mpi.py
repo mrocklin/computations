@@ -2,6 +2,7 @@ from sympy import Symbol
 from sympy.matrices import MatrixSymbol
 from computations.matrices.core import MatrixCall
 from computations import Computation
+import itertools as it
 
 n, m = map(Symbol, 'nm')
 A = MatrixSymbol('A', n, m)
@@ -19,10 +20,8 @@ def new_ierr():
     new_ierr.i += 1
     return Symbol('ierr_%d' % new_ierr.i, integer=True)
 new_ierr.i = 0
-def new_tag():
-    new_tag.i += 1
-    return Symbol('tag_%d' % new_tag.i, integer=True)
-new_tag.i = 0
+tags = it.count(1)
+new_tag = tags.next
 def new_status():
     new_status.i += 1
     return MatrixIntegerSymbol('status_%d' % new_status.i,
@@ -34,7 +33,11 @@ mpi_type = {'integer': 'MPI_INTEGER',
             'real(kind=8)': 'MPI_DOUBLE_PRECISION',
             'complex(kind=8)': 'MPI_COMPLEX'}
 
-class Send(Computation):
+class MPI(Computation):
+    libs = ['mpi']
+    includes = ['mpif']
+
+class Send(MPI):
     """ MPI Synchronous Send Operation """
     def __init__(self, data, dest, tag=None, ierr=None):
         self.ierr = ierr or new_ierr()
@@ -63,7 +66,7 @@ class Send(Computation):
                 "if (%(ierr)s .ne. MPI_SUCCESS) print *, 'MPI_SEND Failed'"%d]
 
 
-class Recv(Computation):
+class Recv(MPI):
     """ MPI Synchronous Recv Operation """
     def __init__(self, data, source, tag=None, status=None, ierr=None):
         self.ierr = ierr or new_ierr()

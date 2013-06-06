@@ -11,7 +11,7 @@ def test_mpi_test_program():
 def test_rank_switch():
     d = {0: 'A', 1: 'B', 2: 'C'}
     s = rank_switch(d)
-    assert "if (rank .eq. 0)  A()" in s
-    assert "if (rank .eq. 1)  B()" in s
-    assert "if (rank .eq. 2)  C()" in s
+    assert "if (rank .eq. 0)  call A()" in s
+    assert "if (rank .eq. 1)  call B()" in s
+    assert "if (rank .eq. 2)  call C()" in s
     assert "Need 3 processes" in s

@@ -25,6 +25,11 @@ def test_sendrecv():
     s2 = send('a', 'c', gemm, axpy)
     assert s.tag != s2.tag
 
+    assert 'mpif' in s.includes
+    assert 'mpif' in r.includes
+    assert 'mpi' in s.libs
+    assert 'mpi' in r.libs
+
 def test_types():
     from computations.matrices.fortran.core import dtype_of
     assert 'int' in dtype_of(s.ierr)
@@ -38,10 +43,9 @@ def streq(a, b):
 def test_send_fortran():
     with assuming(*map(Q.real_elements, (A, B, C))):
         a = s.fortran_call(['A'], ['ierr'])[0]
-        b = "call MPI_SEND( A, 15, MPI_DOUBLE_PRECISION, %d, %d, MPI_COMM_WORLD, ierr)"%(s.dest, s.tag)
-        print a
-        print b
-        assert streq(a, b)
+    b = "call MPI_SEND( A, 15, MPI_DOUBLE_PRECISION, %d, %d, MPI_COMM_WORLD, ierr)"%(s.dest, s.tag)
+    assert streq(a, b)
+
 
 def test_recv_fortran():
     with assuming(*map(Q.real_elements, (A, B, C))):
