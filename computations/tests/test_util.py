@@ -1,5 +1,5 @@
 from computations.util import (toposort, unique, reverse_dict, merge, groupby,
-        remove, iterable)
+        remove, iterable, chunked)
 
 
 def test_unique():
@@ -35,3 +35,6 @@ def test_iterable():
     assert not iterable(3)
     assert iterable((1,2,3))
     assert iterable(set((1,2,3)))
+
+def test_chunked():
+    assert list(chunked(range(9), 3)) == [[0, 1, 2], [3, 4, 5], [6, 7, 8]]

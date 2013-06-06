@@ -1,3 +1,4 @@
+import itertools
 
 identity = lambda x: x
 def unique(seq, key=identity):
@@ -94,3 +95,14 @@ def iterable(x):
         return True
     except:
         return False
+
+def chunked(seq, n):
+    """ Sequence separated into chunks
+
+    >>> from computations.util import chunked
+    >>> list(chunked([1,2,3,4,5,6], 2))
+    [[1, 2], [3, 4], [5, 6]]
+    """
+
+    for i in range(0, len(seq), n):
+        yield seq[i:i+n]
