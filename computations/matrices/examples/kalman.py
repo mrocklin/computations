@@ -1,4 +1,4 @@
-from sympy.matrices.expressions import MatrixSymbol
+from sympy.matrices.expressions import MatrixSymbol, Transpose
 from sympy import Symbol, Q
 
 n, k    = Symbol('n'), Symbol('k')
@@ -10,6 +10,11 @@ data    = MatrixSymbol('data', k, 1)
 
 newmu   = mu + Sigma*H.T * (R + H*Sigma*H.T).I * (H*mu - data)
 newSigma= Sigma - Sigma*H.T * (R + H*Sigma*H.T).I * H * Sigma
+
+newSigma =  -1.0*Sigma*H.T*(H*Transpose(H*Sigma) + R).I*H*Sigma + Sigma
+newmu =  Sigma*H.T*(H*Transpose(H*Sigma) + R).I*(-1.0*data + H*mu) + mu
+
+
 
 assumptions = (Q.positive_definite(Sigma), Q.symmetric(Sigma),
                Q.positive_definite(R), Q.symmetric(R), Q.fullrank(H))
