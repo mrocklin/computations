@@ -41,3 +41,23 @@ class WriteToFile(Computation):
         return ['open(newunit=%(fid)s, file="%(filename)s", status="replace")'%d,
                 'write(%(fid)s, *) %(input)s'%d,
                 'close(%(fid)s)'%d]
+
+def disk_io(comp, filenames):
+    """ Return a computation with reads/writes covering inputs/outputs
+
+    >>> from sympy import MatrixSymbol, ZeroMatrix
+    >>> from computations.matrices.blas import GEMM
+    >>> from computations.matrices.io import disk_io
+    >>> A = MatrixSymbol('A', 3, 4)
+    >>> B = MatrixSymbol('B', 4, 5)
+    >>> gemm = GEMM(1, A, B, 0, ZeroMatrix(3, 5))
+    >>> disk_io(gemm, {A: 'A.dat', B: 'B.dat', A*B: 'AB.dat'})
+    [[[] -> ReadFromFile -> [A, fid_2]
+      [] -> ReadFromFile -> [B, fid_1]
+      [1.00000000000000, A, B, 0.0, 0] -> GEMM -> [A*B]
+      [A*B] -> WriteToFile -> [fid_3]]]
+    """
+    d = filenames
+    reads  = [ReadFromFile(d[i], i) for i in d if i in comp.inputs]
+    writes = [WriteToFile(d[o], o) for o in d if o in comp.outputs]
+    return sum(reads + writes, comp)
