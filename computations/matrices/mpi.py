@@ -1,7 +1,7 @@
 from sympy import Symbol
 from sympy.matrices import MatrixSymbol
 from computations.matrices.core import MatrixCall
-from computations import Computation
+from computations.core import Computation, CompositeComputation
 import itertools as it
 
 n, m = map(Symbol, 'nm')
@@ -209,16 +209,34 @@ gettag._tag = 1
 
 def send(from_machine, to_machine, from_job, to_job):
     sharedvars = set(from_job.outputs).intersection(set(to_job.inputs))
-    for v in sharedvars:
-        # TODO: deal with multiple variables
-        tag = gettag(from_machine, to_machine, v)
-        return Send(v, to_machine, tag=tag)
-    raise ValueError('No Shared Variables')
+    if not sharedvars:
+        raise ValueError('No Shared Variables')
+    sends = [Send(v, to_machine, tag=gettag(from_machine, to_machine, v))
+                    for v in sharedvars]
+    return CompositeComputation(*sends)
+
+def isend(from_machine, to_machine, from_job, to_job):
+    sharedvars = set(from_job.outputs).intersection(set(to_job.inputs))
+    if not sharedvars:
+        raise ValueError('No Shared Variables')
+    sends = [iSend(v, to_machine, tag=gettag(from_machine, to_machine, v))
+                    for v in sharedvars]
+    waits = [iSendWait(s.request) for s in sends]
+    return CompositeComputation(*(sends + waits))
 
 def recv(from_machine, to_machine, from_job, to_job):
     sharedvars = set(from_job.outputs).intersection(set(to_job.inputs))
-    for v in sharedvars:
-        # TODO: deal with multiple variables
-        tag = gettag(from_machine, to_machine, v)
-        return Recv(v, from_machine, tag=tag)
-    raise ValueError('No Shared Variables')
+    if not sharedvars:
+        raise ValueError('No Shared Variables')
+    recvs = [Recv(v, from_machine, tag=gettag(from_machine, to_machine, v))
+                    for v in sharedvars]
+    return CompositeComputation(*recvs)
+
+def irecv(from_machine, to_machine, from_job, to_job):
+    sharedvars = set(from_job.outputs).intersection(set(to_job.inputs))
+    if not sharedvars:
+        raise ValueError('No Shared Variables')
+    recvs = [iRecv(v, from_machine, tag=gettag(from_machine, to_machine, v))
+                    for v in sharedvars]
+    waits = [iRecvWait(r.data, r.request) for r in recvs]
+    return CompositeComputation(*(recvs + waits))

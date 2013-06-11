@@ -1,4 +1,4 @@
-from computations.matrices.mpi import send, recv
+from computations.matrices.mpi import send, recv, isend, irecv
 from computations.matrices.mpi import (Send, Recv, iSend, iRecv, iSendWait,
         iRecvWait)
 from computations.matrices.blas import GEMM, AXPY
@@ -55,6 +55,17 @@ def test_sendrecv():
     assert 'mpif' in r.includes
     assert 'mpi' in s.libs
     assert 'mpi' in r.libs
+
+def test_isend():
+    s = isend(1, 2, gemm, axpy)
+    assert len(s.computations) == 2
+    assert A*B+C in s.inputs
+
+def test_irecv():
+    s = irecv(1, 2, gemm, axpy)
+    assert len(s.computations) == 2
+    assert A*B+C in s.outputs
+
 
 def test_types():
     from computations.matrices.fortran.core import dtype_of
