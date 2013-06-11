@@ -112,6 +112,7 @@ def send(from_machine, to_machine, from_job, to_job):
         # TODO: deal with multiple variables
         tag = gettag(from_machine, to_machine, v)
         return Send(v, to_machine, tag=tag)
+    raise ValueError('No Shared Variables')
 
 def recv(from_machine, to_machine, from_job, to_job):
     sharedvars = set(from_job.outputs).intersection(set(to_job.inputs))
@@ -119,3 +120,4 @@ def recv(from_machine, to_machine, from_job, to_job):
         # TODO: deal with multiple variables
         tag = gettag(from_machine, to_machine, v)
         return Recv(v, from_machine, tag=tag)
+    raise ValueError('No Shared Variables')
