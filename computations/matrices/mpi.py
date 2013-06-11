@@ -123,6 +123,8 @@ from sympy import MatAdd, Basic
 class Inaccessible(MatAdd):
     def __new__(cls, arg):
         return Basic.__new__(cls, arg)
+    def _sympystr(self, printer):
+        return "Inaccessible(%s)"%printer._print(self.args[0])
 
 
 class iRecv(Recv):
@@ -149,8 +151,13 @@ class iRecv(Recv):
                 '%(tag)s, MPI_COMM_WORLD, %(request)s, %(ierr)s)'%d,
                 "if (%(ierr)s .ne. MPI_SUCCESS) print *, 'MPI_iRECV Failed'"%d]
 
+class Wait(MPI):
+    def _write_dot(self):
+        return '"%s" [shape=diamond, label="%s on %s"]' % (
+                str(self), str(self.__class__.__name__), str(self.request))
 
-class iRecvWait(MPI):
+
+class iRecvWait(Wait):
     def __init__(self, data, request, status=None, ierr=None):
         self.request = request
         self.data = data
@@ -162,10 +169,6 @@ class iRecvWait(MPI):
 
     inplace = {0: 0}
 
-    def _write_dot(self):
-        return '"%s" [shape=diamond, label="%s on %s"]' % (
-                str(self), str(self.__class__.__name__), str(self.data))
-
     def fortran_call(self, input_names, output_names):
         from computations.matrices.fortran.core import dtype_of
         _, request, = input_names
@@ -174,7 +177,7 @@ class iRecvWait(MPI):
         return ['call MPI_WAIT( %(request)s, %(status)s, %(ierr)s)'%d,
                 "if (%(ierr)s .ne. MPI_SUCCESS) print *, 'MPI_WAIT Failed'"%d]
 
-class iSendWait(MPI):
+class iSendWait(Wait):
     def __init__(self, request, status=None, ierr=None):
         self.request = request
         self.status = status or new_status()
@@ -182,10 +185,6 @@ class iSendWait(MPI):
 
         self.inputs = (self.request,)
         self.outputs = (self.status, self.ierr)
-
-    def _write_dot(self):
-        return '"%s" [shape=diamond, label="%s on %s"]' % (
-                str(self), str(self.__class__.__name__), str(self.request))
 
     def fortran_call(self, input_names, output_names):
         from computations.matrices.fortran.core import dtype_of
