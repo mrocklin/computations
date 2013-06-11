@@ -85,9 +85,9 @@ class iSend(Send):
         dest  = self.dest
         tag   = self.tag
         d = locals()
-        return ['call MPI_iSEND( %(data)s, %(numel)s, %(dtype)s, %(dest)s, '
+        return ['call MPI_ISend( %(data)s, %(numel)s, %(dtype)s, %(dest)s, '
                 '%(tag)s, MPI_COMM_WORLD, %(request)s, %(ierr)s)'%d,
-                "if (%(ierr)s .ne. MPI_SUCCESS) print *, 'MPI_iSEND Failed'"%d]
+                "if (%(ierr)s .ne. MPI_SUCCESS) print *, 'MPI_ISend Failed'"%d]
 
 class Recv(MPI):
     """ MPI Synchronous Recv Operation """
@@ -147,9 +147,9 @@ class iRecv(Recv):
         source = self.source
         tag    = self.tag
         d = locals()
-        return ['call MPI_iRECV( %(data)s, %(numel)s, %(dtype)s, %(source)s, '
+        return ['call MPI_IRecv( %(data)s, %(numel)s, %(dtype)s, %(source)s, '
                 '%(tag)s, MPI_COMM_WORLD, %(request)s, %(ierr)s)'%d,
-                "if (%(ierr)s .ne. MPI_SUCCESS) print *, 'MPI_iRECV Failed'"%d]
+                "if (%(ierr)s .ne. MPI_SUCCESS) print *, 'MPI_IRecv Failed'"%d]
 
 class Wait(MPI):
     def _write_dot(self):
