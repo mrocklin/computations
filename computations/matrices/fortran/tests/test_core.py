@@ -113,5 +113,4 @@ def test_nbytes():
     x = Symbol('x')
     with assuming(Q.real_elements(A), Q.real(x)):
         assert nbytes(A) == 2*3*8
-        print nbytes(x)
         assert nbytes(x) == 8
