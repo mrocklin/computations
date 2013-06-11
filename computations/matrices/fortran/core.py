@@ -205,6 +205,7 @@ extra_flags_post = " -I/usr/include/mpich2 -I/usr/include/mpich2 -L/usr/lib -lmp
 # <\KLUDGE>
 
 default_includes = ['/usr/include']
+default_flags = ['-ffixed-line-length-0']
 def compile(source, filename='tmp.f90', modname='mod',
             libs=[], includes=[]):
     with open(filename, 'w') as f:
@@ -219,6 +220,7 @@ def compile_file(filename, modname='mod', libs=[], includes=[]):
     command += extra_flags_pre # KLUDGE
     command += '%(filename)s -m %(modname)s %(libstr)s %(incstr)s' % locals()
     command += extra_flags_post # KLUDGE
+    command += ' --f90flags=" '+ ' '.join(default_flags)+' " '
     pipe = os.popen(command)
     text = pipe.read()
     if "Error" in text:
