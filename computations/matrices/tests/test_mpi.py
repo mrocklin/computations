@@ -1,5 +1,6 @@
 from computations.matrices.mpi import send, recv
-from computations.matrices.mpi import Send, Recv
+from computations.matrices.mpi import (Send, Recv, iSend, iRecv, iSendWait,
+        iRecvWait)
 from computations.matrices.blas import GEMM, AXPY
 from sympy.matrices.expressions import MatrixSymbol
 from sympy import ask, Q, assuming
@@ -14,6 +15,31 @@ axpy = AXPY(2, A*B+C, D)
 
 s = send(1, 2, gemm, axpy)
 r = recv(1, 2, gemm, axpy)
+
+def test_Send():
+    s = Send(A, 2)
+    assert A in s.inputs
+    assert s.dest == 2
+
+def test_Recv():
+    r = Recv(A, 1)
+    assert A in r.outputs
+    assert r.source == 1
+
+def test_iSend():
+    s = iSend(A, 2)
+    sw = iSendWait(s.request)
+    assert A in s.inputs
+    assert s.request in s.outputs
+    assert s.request in sw.inputs
+
+def test_iRecv():
+    r = iRecv(A, 1)
+    rw = iRecvWait(A, r.request)
+    assert A not in r.outputs
+    assert A in rw.outputs
+    assert set(rw.inputs).issubset(set(r.outputs))
+
 
 def test_sendrecv():
     assert A*B+C in s.inputs
