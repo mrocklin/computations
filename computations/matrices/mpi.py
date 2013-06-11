@@ -139,15 +139,14 @@ class iRecv(Recv):
 
     def fortran_call(self, input_names, output_names):
         from computations.matrices.fortran.core import dtype_of
-        request, = input_names
-        data, status, ierr = output_names
+        data, request, ierr = output_names
         numel  = self.data.rows * self.data.cols
         dtype  = mpi_type[dtype_of(self.data)]
         source = self.source
         tag    = self.tag
         d = locals()
-        return ['call MPI_RECV( %(data)s, %(numel)s, %(dtype)s, %(source)s, '
-                '%(tag)s, MPI_COMM_WORLD, %(status)s, %(request)s, %(ierr)s)'%d,
+        return ['call MPI_iRECV( %(data)s, %(numel)s, %(dtype)s, %(source)s, '
+                '%(tag)s, MPI_COMM_WORLD, %(request)s, %(ierr)s)'%d,
                 "if (%(ierr)s .ne. MPI_SUCCESS) print *, 'MPI_iRECV Failed'"%d]
 
 

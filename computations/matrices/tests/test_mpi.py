@@ -74,8 +74,12 @@ def test_types():
     assert 'int' in dtype_of(r.status)
 
 def streq(a, b):
-    canon = lambda s: s.replace(' ', '')
-    return canon(a) == canon(b)
+    canon = lambda s: s.replace(' ', '').lower()
+    truth = canon(a) == canon(b)
+    if not truth:
+        print canon(a)
+        print canon(b)
+    return truth
 
 def test_send_fortran():
     with assuming(*map(Q.real_elements, (A, B, C))):
@@ -83,6 +87,33 @@ def test_send_fortran():
     b = "call MPI_SEND( A, 15, MPI_DOUBLE_PRECISION, %d, %d, MPI_COMM_WORLD, ierr)"%(s.dest, s.tag)
     assert streq(a, b)
 
+def test_iRecv_fortran():
+    r = iRecv(A, 1)
+    with assuming(Q.real_elements(A)):
+        result = r.fortran_call([], ['A', 'request', 'ierr'])[0]
+    expected = 'call MPI_iRECV(A, %d, MPI_DOUBLE_PRECISION, 1, %d, MPI_COMM_WORLD, request, ierr)' % (A.rows*A.cols, r.tag)
+    assert streq(result, expected)
+
+def test_iSend_fortran():
+    s = iSend(A, 2)
+    with assuming(Q.real_elements(A)):
+        result = s.fortran_call(['A'], ['request', 'ierr'])[0]
+    expected = 'call MPI_iSend(A, %d, MPI_DOUBLE_PRECISION, 2, %d, MPI_COMM_WORLD, request, ierr)' % (A.rows*A.cols, s.tag)
+    assert streq(result, expected)
+
+def test_iSendWait_fortran():
+    s = iSend(A, 2)
+    sw = iSendWait(s.request)
+    result = sw.fortran_call(['request'], ['status', 'ierr'])[0]
+    expected = 'call MPI_Wait(request, status, ierr)'
+    assert streq(result, expected)
+
+def test_iSendWait_fortran():
+    r = iRecv(A, 1)
+    rw = iRecvWait(A, r.request)
+    result = rw.fortran_call(['A', 'request'], ['A', 'status', 'ierr'])[0]
+    expected = 'call MPI_Wait(request, status, ierr)'
+    assert streq(result, expected)
 
 def test_recv_fortran():
     with assuming(*map(Q.real_elements, (A, B, C))):
