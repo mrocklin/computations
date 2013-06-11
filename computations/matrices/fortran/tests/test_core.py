@@ -100,3 +100,17 @@ def test_tokens_of():
                         dimens) = tokens_of(igemm, [X, Y], [X*Y])
 
     assert list(input_tokens) == ['X', 'Y']
+
+def test_numel():
+    A = MatrixSymbol('A', 2, 3)
+    x = Symbol('x')
+    assert numel(A) == 2*3
+    assert numel(x) == 1
+
+def test_nbytes():
+    A = MatrixSymbol('A', 2, 3)
+    x = Symbol('x')
+    with assuming(Q.real_elements(A), Q.real(x)):
+        assert nbytes(A) == 2*3*8
+        print nbytes(x)
+        assert nbytes(x) == 8

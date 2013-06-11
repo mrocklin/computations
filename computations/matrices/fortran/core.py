@@ -81,6 +81,23 @@ def dtype_of(expr, *assumptions):
             raise TypeError('Could not infer type of %s'%str(expr))
     return result
 
+
+nbytes_dtype = {'integer': 4,
+                'real(kind=8)': 8,
+                'complex(kind=8)': 8}
+
+def numel(var):
+    if isinstance(var, MatrixExpr):
+        return var.shape[0] * var.shape[1]
+    if isinstance(var, Expr):
+        return 1
+    raise NotImplementedError()
+
+def nbytes(var, *assumptions):
+    dtype = dtype_of(var, *assumptions)
+    return nbytes_dtype[dtype] * numel(var)
+
+
 def tokens_of(comp, inputs, outputs):
     computations = comp.toposort()
     vars = list(comp.variables)
