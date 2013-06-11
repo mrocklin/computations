@@ -88,7 +88,8 @@ def test_build():
 def test_numerics():
     import numpy as np
     with assuming(Q.real_elements(X), Q.real_elements(y)):
-        f = build(ic, inputs, outputs)
+        f = build(ic, inputs, outputs, filename='numerics.f90',
+                modname='numerics')
     nX, ny = np.ones((5, 5)), np.ones(5)
     result = np.matrix(nX) * np.matrix(ny).T
     assert np.allclose(f(nX, ny), result)
