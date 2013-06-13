@@ -98,7 +98,9 @@ def nbytes(var, *assumptions):
     return nbytes_dtype[dtype] * numel(var)
 
 def tokens_of(comp, inputs, outputs, **kwargs):
+    # cmps = kwargs.get('cmps', [])
     computations = comp.toposort()
+    # computations = posort(computations, *cmps)
     vars = list(comp.variables)
 
     input_tokens  = sorted_tokens(unique(comp.inputs), inputs)
@@ -163,8 +165,7 @@ def generate(comp, inputs, outputs, name='f'):
     return template % locals()
 
 
-def generate_f2py_header(comp, inputs, outputs, name='f',
-        **kwargs):
+def generate_f2py_header(comp, inputs, outputs, name='f', **kwargs):
     (computations, vars, input_tokens, input_vars, output_tokens, tokens,
             dimens) = tokens_of(comp, inputs, outputs, **kwargs)
 
@@ -233,7 +234,7 @@ def is_token_computation(c):
     return isinstance(list(c.variables)[0], ExprToken)
 
 def build(comp, inputs, outputs, name='f', modname='mod',
-        filename='tmp.f90'):
+            filename='tmp.f90', **kwargs):
     if not iterable(inputs):
         raise TypeError("Inputs not iterable")
     if not iterable(outputs):
@@ -242,7 +243,7 @@ def build(comp, inputs, outputs, name='f', modname='mod',
         from computations.matrices.blas import COPY
         comp = inplace_compile(comp, Copy=COPY)
     source = generate_module(comp, inputs, outputs, name=name,
-            modname=modname)
+                               modname=modname, **kwargs)
     compile(source, filename, modname, libs=comp.libs, includes=comp.includes)
     mod = __import__(modname)
     return getattr(getattr(mod, modname), 'py_'+name)
