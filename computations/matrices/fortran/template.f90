@@ -15,6 +15,7 @@ subroutine %(subroutine_header)s
 ! Variable Declarations !
 ! ===================== !
 %(variable_declarations)s
+!  real(kind=8) :: starttime, endtime
 
   interface
 %(function_interfaces)s
@@ -30,7 +31,11 @@ subroutine %(subroutine_header)s
 ! ========== !
 ! Statements !
 ! ========== !
+
+!   starttime = MPI_Wtime()
 %(statements)s
+!  endtime   = MPI_Wtime()
+!  print *, endtime-starttime
 
 ! ======================= !
 ! Variable Deconstruction !
