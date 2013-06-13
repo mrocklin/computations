@@ -51,7 +51,7 @@ def disk_io(comp, filenames):
     >>> A = MatrixSymbol('A', 3, 4)
     >>> B = MatrixSymbol('B', 4, 5)
     >>> gemm = GEMM(1, A, B, 0, ZeroMatrix(3, 5))
-    >>> disk_io(gemm, {A: 'A.dat', B: 'B.dat', A*B: 'AB.dat'})
+    >>> disk_io(gemm, {A: 'A.dat', B: 'B.dat', A*B: 'AB.dat'}) # doctest: +SKIP
     [[[] -> ReadFromFile -> [A, fid_2]
       [] -> ReadFromFile -> [B, fid_1]
       [1.00000000000000, A, B, 0.0, 0] -> GEMM -> [A*B]

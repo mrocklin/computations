@@ -5,7 +5,8 @@ from sympy.core.compatibility import iterable
 class PermutationMatrix(MatrixExpr):
     """ Permutation Matrix
 
-    >>> from sympy.matrices import Matrix, PermutationMatrix
+    >>> from sympy.matrices import Matrix
+    >>> from computations.matrices.permutation import PermutationMatrix
     >>> P = PermutationMatrix((1, 2, 0))
     >>> Matrix(P)
     [0, 1, 0]
