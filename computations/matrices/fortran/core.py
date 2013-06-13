@@ -1,4 +1,5 @@
 from computations.core import Computation, unique, CompositeComputation
+from computations.schedule import schedule
 from computations.inplace import TokenComputation, ExprToken, inplace_compile
 from computations.util import groupby, remove, iterable
 from computations.matrices.fortran.util import (join, is_number, constant_arg,
@@ -97,10 +98,12 @@ def nbytes(var, *assumptions):
     dtype = dtype_of(var, *assumptions)
     return nbytes_dtype[dtype] * numel(var)
 
+
 def tokens_of(comp, inputs, outputs, **kwargs):
-    # cmps = kwargs.get('cmps', [])
+    cmps = kwargs.get('cmps', [])
     computations = comp.toposort()
-    # computations = posort(computations, *cmps)
+    if cmps:
+        computations = schedule(computations, *cmps)
     vars = list(comp.variables)
 
     input_tokens  = sorted_tokens(unique(comp.inputs), inputs)
