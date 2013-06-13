@@ -22,15 +22,13 @@ def rank_switch(d):
 def generate_mpi(*args, **kwargs):
     """
 
-    inputs: comp, inputs, outputs, name, comp, inputs, outputs, name ...
+    inputs: comp, name, [cmps], comp, name, [cmps] ...
     """
-    cmps = kwargs.pop('cmps', [])
-    if set(mpi_cmps).issubset(set(cmps)):
-        cmps = cmps + type(cmps)(*mpi_cmps)
-    comps = args[0::4]
-    names = args[3::4]
-    codes = [generate(comp, inputs, outputs, name=name, cmps=cmps, **kwargs)
-            for comp, inputs, outputs, name in chunked(args, 4)]
+    comps = args[0::3]
+    names = args[1::3]
+    codes = [generate(comp, [], [], name=name, cmps=type(cmps)(mpi_cmps)+cmps, **kwargs)
+            for comp, name, cmps in chunked(args, 3)]
+    assert all(isinstance(name, str) for name in names)
     return _generate_mpi(comps, names, codes, **kwargs)
 
 
