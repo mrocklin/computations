@@ -238,3 +238,16 @@ def irecv(from_machine, to_machine, from_job, to_job):
                     for v in sharedvars]
     waits = [iRecvWait(r.data, r.request) for r in recvs]
     return CompositeComputation(*(recvs + waits))
+
+
+def mpi_key(c):
+    if isinstance(c, Wait):         return +1
+    elif isinstance(c, MPI):        return -1
+    else:                           return  0
+
+def mpi_tag_key(c):
+    if isinstance(c, MPI):          return c.tag
+    else:                           return 0
+
+from computations.schedule import key_to_cmp
+mpi_cmps = map(key_to_cmp, (mpi_key, mpi_tag_key))

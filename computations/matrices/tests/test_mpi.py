@@ -1,6 +1,7 @@
 from computations.matrices.mpi import send, recv, isend, irecv
 from computations.matrices.mpi import (Send, Recv, iSend, iRecv, iSendWait,
         iRecvWait)
+from computations.matrices.mpi import mpi_key, mpi_tag_key
 from computations.matrices.blas import GEMM, AXPY
 from sympy.matrices.expressions import MatrixSymbol
 from sympy import ask, Q, assuming
@@ -140,3 +141,21 @@ def test_recv_fortran_generate():
     irr = inplace_compile(r)
     with assuming(Q.real_elements(A)): code = generate(irr, [], [A])
     assert isinstance(code, str)
+
+def test_mpi_key():
+    from computations.schedule import key_to_cmp
+    mpi_cmp = key_to_cmp(mpi_key)
+    s = iSend(A, 2)
+    sw = iSendWait(s.request)
+    assert mpi_cmp(s, gemm)  < 0
+    assert mpi_cmp(s, axpy)  < 0
+    assert mpi_cmp(gemm, sw) < 0
+
+
+def test_mpi_tag_key():
+    from computations.schedule import key_to_cmp
+    mpi_tag_cmp = key_to_cmp(mpi_tag_key)
+    s1 = iSend(A, 2, tag=3)
+    s2 = iSend(A, 2, tag=4)
+
+    assert mpi_tag_cmp(s1, s2) != 0  # Ties are broken
