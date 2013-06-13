@@ -97,8 +97,7 @@ def nbytes(var, *assumptions):
     dtype = dtype_of(var, *assumptions)
     return nbytes_dtype[dtype] * numel(var)
 
-
-def tokens_of(comp, inputs, outputs):
+def tokens_of(comp, inputs, outputs, **kwargs):
     computations = comp.toposort()
     vars = list(comp.variables)
 
@@ -111,13 +110,12 @@ def tokens_of(comp, inputs, outputs):
     return (computations, vars, input_tokens, input_vars, output_tokens, tokens,
             dimens)
 
-def generate(comp, inputs, outputs, types=dict(), name='f'):
+def generate(comp, inputs, outputs, name='f'):
     """ Generate Fortran code from a computation
 
     comp - a tokenized computation from inplace_compile
     inputs  - a list of SymPy (Matrix)Expressions
     outputs - a list of SymPy (Matrix)Expressions
-    types   - a dictionary mapping expressions to known datatype
     name    - the name of your subroutine
     """
 
@@ -134,13 +132,13 @@ def generate(comp, inputs, outputs, types=dict(), name='f'):
     function_interfaces = join([c.comp.fortran_function_interface()
                                             for c in computations])
     argument_declarations = join([
-        declare_variable(token, comp, types, inputs, outputs)
+        declare_variable(token, comp, inputs, outputs)
         for token in unique(input_tokens + output_tokens)])
 
     assumed_dim_declarations  = map(assumed_dimension_declaration, dimens)
 
     variable_declarations = join(sorted([
-        declare_variable(token, comp, types, inputs, outputs)
+        declare_variable(token, comp, inputs, outputs)
         for token in (set(tokens) - set(input_tokens + output_tokens))])
         + assumed_dim_declarations)
 
@@ -165,9 +163,10 @@ def generate(comp, inputs, outputs, types=dict(), name='f'):
     return template % locals()
 
 
-def generate_f2py_header(comp, inputs, outputs, types=dict(), name='f'):
+def generate_f2py_header(comp, inputs, outputs, name='f',
+        **kwargs):
     (computations, vars, input_tokens, input_vars, output_tokens, tokens,
-            dimens) = tokens_of(comp, inputs, outputs)
+            dimens) = tokens_of(comp, inputs, outputs, **kwargs)
 
     dimen_tokens = map(str, dimens)
 
@@ -177,7 +176,7 @@ def generate_f2py_header(comp, inputs, outputs, types=dict(), name='f'):
     dimension_declarations = join(map(explicit_dimension_declaration, dimens))
 
     argument_declarations = join([
-        declare_variable(token, comp, types, inputs, outputs,
+        declare_variable(token, comp, inputs, outputs,
             shape_str=explicit_shape_str)
         for token in unique(input_tokens + output_tokens)])
 
@@ -233,7 +232,7 @@ def compile_file(filename, modname='mod', libs=[], includes=[]):
 def is_token_computation(c):
     return isinstance(list(c.variables)[0], ExprToken)
 
-def build(comp, inputs, outputs, types=dict(), name='f', modname='mod',
+def build(comp, inputs, outputs, name='f', modname='mod',
         filename='tmp.f90'):
     if not iterable(inputs):
         raise TypeError("Inputs not iterable")
@@ -242,7 +241,7 @@ def build(comp, inputs, outputs, types=dict(), name='f', modname='mod',
     if not is_token_computation(comp):
         from computations.matrices.blas import COPY
         comp = inplace_compile(comp, Copy=COPY)
-    source = generate_module(comp, inputs, outputs, types, name=name,
+    source = generate_module(comp, inputs, outputs, name=name,
             modname=modname)
     compile(source, filename, modname, libs=comp.libs, includes=comp.includes)
     mod = __import__(modname)
@@ -291,7 +290,7 @@ def intent_str(isinput, isinternal, isoutput):
     else:
         return ''
 
-def declare_variable(token, comp, types, inputs, outputs, **kwargs):
+def declare_variable(token, comp, inputs, outputs, **kwargs):
     internal_vars = set(v for v in comp.variables if v.expr not in inputs)
     isinput  = any(token == v.token for v in comp.inputs if not
             constant_arg(v.expr))
@@ -303,10 +302,7 @@ def declare_variable(token, comp, types, inputs, outputs, **kwargs):
     if not exprs:
         return ''
     expr = exprs.pop()
-    if expr in types:
-        typ = types[expr]
-    else:
-        typ = dtype_of(expr)
+    typ = dtype_of(expr)
     return declare_variable_string(token, expr, typ, isinput, isinternal, isoutput, **kwargs)
 
 
