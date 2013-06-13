@@ -10,3 +10,7 @@ def data_dependence(a, b):
 def schedule(computations, *cmps):
     from posort import posort
     return posort(computations, data_dependence, *cmps)
+
+
+def key_to_cmp(key):
+    return lambda a, b: cmp(key(a), key(b))
