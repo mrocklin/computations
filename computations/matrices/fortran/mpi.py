@@ -1,5 +1,6 @@
 from computations.matrices.fortran.core import generate, comp_dir
 from computations.util import chunked
+from computations.matrices.mpi import mpi_cmps
 
 
 with open(comp_dir + 'matrices/fortran/mpi-program-template.f90') as f:
@@ -18,16 +19,19 @@ def rank_switch(d):
             for k, v in d.items())
     return rank_switch_template % locals()
 
-def generate_mpi(*args):
+def generate_mpi(*args, **kwargs):
     """
 
     inputs: comp, inputs, outputs, name, comp, inputs, outputs, name ...
     """
+    cmps = kwargs.pop('cmps', [])
+    if set(mpi_cmps).issubset(set(cmps)):
+        cmps = cmps + type(cmps)(*mpi_cmps)
     comps = args[0::4]
     names = args[3::4]
-    codes = [generate(comp, inputs, outputs, name=name)
+    codes = [generate(comp, inputs, outputs, name=name, cmps=cmps, **kwargs)
             for comp, inputs, outputs, name in chunked(args, 4)]
-    return _generate_mpi(comps, names, codes)
+    return _generate_mpi(comps, names, codes, **kwargs)
 
 
 def _generate_mpi(comps, names, codes):

@@ -103,7 +103,7 @@ def inplace_cmp(cmp):
 
 def tokens_of(comp, inputs, outputs, **kwargs):
     from computations.matrices.mpi import mpi_cmps
-    cmps = kwargs.get('cmps', mpi_cmps)
+    cmps = kwargs.get('cmps', [])
     computations = comp.toposort()
     if cmps:
         computations = schedule(computations, *map(inplace_cmp, cmps))
@@ -118,7 +118,7 @@ def tokens_of(comp, inputs, outputs, **kwargs):
     return (computations, vars, input_tokens, input_vars, output_tokens, tokens,
             dimens)
 
-def generate(comp, inputs, outputs, name='f'):
+def generate(comp, inputs, outputs, name='f', **kwargs):
     """ Generate Fortran code from a computation
 
     comp - a tokenized computation from inplace_compile
@@ -128,7 +128,7 @@ def generate(comp, inputs, outputs, name='f'):
     """
 
     (computations, vars, input_tokens, input_vars, output_tokens, tokens,
-            dimens) = tokens_of(comp, inputs, outputs)
+            dimens) = tokens_of(comp, inputs, outputs, **kwargs)
 
     function_definitions = join([c.comp.fortran_function_definition()
                                             for c in computations])
