@@ -159,3 +159,6 @@ def test_mpi_tag_key():
     s2 = iSend(A, 2, tag=4)
 
     assert mpi_tag_cmp(s1, s2) != 0  # Ties are broken
+
+    sw = iSendWait(s1.request)
+    mpi_tag_key(sw)

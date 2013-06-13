@@ -246,8 +246,8 @@ def mpi_key(c):
     else:                           return  0
 
 def mpi_tag_key(c):
-    if isinstance(c, MPI):          return c.tag
-    else:                           return 0
+    if isinstance(c, MPI) and hasattr(c, 'tag'):            return c.tag
+    else:                                                   return 0
 
 from computations.schedule import key_to_cmp
 mpi_cmps = map(key_to_cmp, (mpi_key, mpi_tag_key))
