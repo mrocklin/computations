@@ -45,6 +45,25 @@ class Computation(object):
     def __eq__(self, other):
         return type(self) == type(other) and self._info() == other._info()
 
+    def depends_on(self, other, canonicalize=identity):
+        """ Test dependence on another computaiton
+
+        Do any of my inputs depend on the other computation?
+
+        See Also:
+            Computation.supports"""
+        outs = set(map(canonicalize, other.outputs))
+        return any(canonicalize(inp) in outs for inp in self.inputs)
+
+    def supports(self, other, **kwargs):
+        """ Test dependence from another computaiton
+
+        Are any of my outputs used by the other computation?
+
+        See Also:
+            Computation.depends_on"""
+        return other.depends_on(self, **kwargs)
+
     libs = []
     includes = []
 

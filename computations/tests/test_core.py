@@ -70,3 +70,7 @@ def test_composite_with_identity_inputs():
     I = Identity(c)
     C = A+I
     assert set(C.inputs) == set((d, c))
+
+def test_dependence():
+    assert A.supports(B)
+    assert B.depends_on(A)
