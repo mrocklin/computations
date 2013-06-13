@@ -122,7 +122,7 @@ class CompositeComputation(Computation):
         returns {A: {Bs}} such that A must occur before each of the Bs
         """
         return {A: set([B for B in self.computations
-                          if intersect(A.outputs, B.inputs)])
+                          if B.depends_on(A)])
                     for A in self.computations}
 
     def dict_oi(self):
@@ -131,7 +131,7 @@ class CompositeComputation(Computation):
         returns {A: {Bs}} such that A requires each of the Bs before it runs
         """
         return {A: set([B for B in self.computations
-                          if intersect(A.inputs, B.outputs)])
+                          if A.depends_on(B)])
                     for A in self.computations}
 
     def toposort(self):
