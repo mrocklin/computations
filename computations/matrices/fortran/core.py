@@ -98,12 +98,15 @@ def nbytes(var, *assumptions):
     dtype = dtype_of(var, *assumptions)
     return nbytes_dtype[dtype] * numel(var)
 
+def inplace_cmp(cmp):
+    return lambda a, b: cmp(a.comp, b.comp)
 
 def tokens_of(comp, inputs, outputs, **kwargs):
-    cmps = kwargs.get('cmps', [])
+    from computations.matrices.mpi import mpi_cmps
+    cmps = kwargs.get('cmps', mpi_cmps)
     computations = comp.toposort()
     if cmps:
-        computations = schedule(computations, *cmps)
+        computations = schedule(computations, *map(inplace_cmp, cmps))
     vars = list(comp.variables)
 
     input_tokens  = sorted_tokens(unique(comp.inputs), inputs)
