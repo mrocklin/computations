@@ -69,6 +69,12 @@ class Send(MPI):
                 '%(tag)s, MPI_COMM_WORLD, %(ierr)s)'%d,
                 "if (%(ierr)s .ne. MPI_SUCCESS) print *, 'MPI_SEND Failed'"%d]
 
+    def pseudocode_call(self, input_names, output_names):
+        data, = input_names
+        dest  = self.dest
+        return ['Send %(data)s to %(dest)s' % locals()]
+
+
 class iSend(Send):
     """ MPI Synchronous Send Operation """
     def __init__(self, data, dest, tag=None, request=None, ierr=None):
@@ -88,6 +94,12 @@ class iSend(Send):
         return ['call MPI_ISend( %(data)s, %(numel)s, %(dtype)s, %(dest)s, '
                 '%(tag)s, MPI_COMM_WORLD, %(request)s, %(ierr)s)'%d,
                 "if (%(ierr)s .ne. MPI_SUCCESS) print *, 'MPI_ISend Failed'"%d]
+
+    def pseudocode_call(self, input_names, output_names):
+        data, = input_names
+        dest  = self.dest
+        return ['Send %(data)s to %(dest)s asynchronously' % locals()]
+
 
 class Recv(MPI):
     """ MPI Synchronous Recv Operation """
@@ -118,6 +130,10 @@ class Recv(MPI):
                 '%(tag)s, MPI_COMM_WORLD, %(status)s, %(ierr)s)'%d,
                 "if (%(ierr)s .ne. MPI_SUCCESS) print *, 'MPI_RECV Failed'"%d]
 
+    def pseudocode_call(self, input_names, output_names):
+        data, status, ierr = output_names
+        source = self.source
+        return ['Receive %(data)s from %(source)s' % locals()]
 
 from sympy import MatAdd, Basic
 class Inaccessible(MatAdd):
@@ -151,6 +167,11 @@ class iRecv(Recv):
                 '%(tag)s, MPI_COMM_WORLD, %(request)s, %(ierr)s)'%d,
                 "if (%(ierr)s .ne. MPI_SUCCESS) print *, 'MPI_IRecv Failed'"%d]
 
+    def pseudocode_call(self, input_names, output_names):
+        data, status, ierr = output_names
+        source = self.source
+        return ['Receive %(data)s from %(source)s asynchronously' % locals()]
+
 class Wait(MPI):
     def _write_dot(self):
         return '"%s" [shape=diamond, label="%s on %s"]' % (
@@ -177,6 +198,13 @@ class iRecvWait(Wait):
         return ['call MPI_WAIT( %(request)s, %(status)s, %(ierr)s)'%d,
                 "if (%(ierr)s .ne. MPI_SUCCESS) print *, 'MPI_WAIT Failed'"%d]
 
+
+    def pseudocode_call(self, input_names, output_names):
+        data, status, ierr = output_names
+        source = self.source
+        return ['Wait on transfer of %(data)s from %(source)s to complete' % locals()]
+
+
 class iSendWait(Wait):
     def __init__(self, request, status=None, ierr=None):
         self.request = request
@@ -193,6 +221,12 @@ class iSendWait(Wait):
         d = locals()
         return ['call MPI_WAIT( %(request)s, %(status)s, %(ierr)s)'%d,
                 "if (%(ierr)s .ne. MPI_SUCCESS) print *, 'MPI_WAIT Failed'"%d]
+
+
+    def pseudocode_call(self, input_names, output_names):
+        request, = input_names
+        dest = self.dest
+        return ['Wait on %(request)s to %(dest)s to complete' % locals()]
 
 
 tagdb = dict()

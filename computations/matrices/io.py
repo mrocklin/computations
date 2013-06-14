@@ -26,6 +26,11 @@ class ReadFromFile(Computation):
                 'read(%(fid)s, *) %(output)s'%d,
                 'close(%(fid)s)'%d]
 
+    def pseudocode_call(self, input_names, output_names):
+        output, fid = output_names
+        filename = self.filename
+        return ['%(output)s := Read from %(filename)s' % locals()]
+
 class WriteToFile(Computation):
     def __init__(self, filename, input, identifier=None):
         identifier = identifier or new_fid()
@@ -41,6 +46,12 @@ class WriteToFile(Computation):
         return ['open(newunit=%(fid)s, file="%(filename)s", status="replace")'%d,
                 'write(%(fid)s, *) %(input)s'%d,
                 'close(%(fid)s)'%d]
+
+    def pseudocode_call(self, input_names, output_names):
+        input, = input_names
+        filename = self.filename
+        return ['Write %(input)s to %(filename)s' % locals()]
+
 
 def disk_io(comp, filenames):
     """ Return a computation with reads/writes covering inputs/outputs

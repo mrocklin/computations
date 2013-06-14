@@ -77,6 +77,7 @@ class MatrixCall(Computation):
         codemap = self.codemap(argnames)
         return [self.fortran_template % codemap]
 
+
 def fortran_double_str(x):
     if 'e' in str(x):
         return str(x).replace('e', 'd')

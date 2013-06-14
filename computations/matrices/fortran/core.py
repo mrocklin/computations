@@ -30,6 +30,8 @@ class FortranPrintableTokenComputation(object):
         return self.comp.fortran_include_statements()
     def fortran_call(self):
         return self.comp.fortran_call(self.input_tokens, self.output_tokens)
+    def pseudocode_call(self):
+        return self.comp.pseudocode_call(self.input_tokens, self.output_tokens)
 
 
 class FortranPrintableComputation(object):
@@ -56,6 +58,8 @@ class FortranPrintableComputation(object):
 
     # Atomic Computation Functions
     def fortran_call(self, input_names, output_names):
+        raise NotImplementedError()
+    def pseudocode_call(self, input_names, output_names):
         raise NotImplementedError()
 
     def fortran_function_interface(self):
@@ -159,7 +163,14 @@ def generate(comp, inputs, outputs, name='f', **kwargs):
     array_allocations = join([allocate_array(v, input_tokens, output_tokens)
                                 for v in unique(vars, key=gettoken)])
 
-    statements = join(sum([c.fortran_call() for c in computations], []))
+    def call(c):
+        rv = c.fortran_call()
+        try:
+            rv = ["! " + s for s in c.pseudocode_call()] + rv
+        except NotImplementedError:
+            pass
+        return rv
+    statements = join(sum(map(call, computations), []))
 
     variable_destructions = join(map(destroy_variable, vars))
 

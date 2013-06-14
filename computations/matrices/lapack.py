@@ -57,6 +57,12 @@ class GESV(LAPACK):
         return merge(namemap, other)
 
 
+    def pseudocode_call(self, inputs_names, outputs_names):
+        A, B = inputs_names
+        result, ipiv, info = outputs_names
+        return ["%(B)s := %(A)s\%(B)s permuted by %(ipiv)s" % locals()]
+
+
 class LASWP(LAPACK):
     """ Permute rows in a matrix """
     _inputs   = (PermutationMatrix(IPIV(A))*A, IPIV(A))
@@ -85,6 +91,10 @@ class LASWP(LAPACK):
                  'fn': self.fnname(self.typecode)}
         return merge(namemap, other)
 
+    def pseudocode_call(self, inputs_names, outputs_names):
+        Apermuted, ipiv = inputs_names
+        A, = outputs_names
+        return ["%(A)s := permute %(A)s by %(ipiv)s" % locals()]
 
 class POSV(LAPACK):
     """ Symmetric Positive Definite Matrix Solve """
@@ -112,6 +122,12 @@ class POSV(LAPACK):
     @staticmethod
     def arguments(inputs, outputs):
         return inputs + (outputs[2],)
+
+
+    def pseudocode_call(self, inputs_names, outputs_names):
+        A, B = inputs_names
+        return ["%(B)s := %(A)s\%(B)s" % locals(),
+                "%(A)s := Cholesky Decomposition of %(A)s" % locals()]
 
 class POTRS(LAPACK):
     _inputs =  (UofCholesky(A), B)
@@ -145,3 +161,7 @@ class POTRS(LAPACK):
     @staticmethod
     def arguments(inputs, outputs):
         return inputs + (outputs[1],)
+
+    def pseudocode_call(self, inputs_names, outputs_names):
+        A, B = inputs_names
+        return ["%(B)s := %(A)s\%(B)s (B is Cholesky factor) " % locals()]

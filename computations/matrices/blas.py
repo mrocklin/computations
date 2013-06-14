@@ -62,6 +62,13 @@ class MM(BLAS):
         return merge(namemap, other)
 
 
+    def pseudocode_call(self, inputs_names, outputs_names):
+        alpha, A, B, beta, C = inputs_names
+        if isinstance(A, Transpose): A += "'"
+        if isinstance(B, Transpose): A += "'"
+        return ["%(C)s := %(alpha)s*%(A)s*%(B)s + %(beta)s*%(C)s" % locals()]
+
+
 class GEMM(MM):
     """ General Matrix Multiply """
     fortran_template = ("call %(fn)s('%(TRANSA)s', '%(TRANSB)s', "
@@ -116,6 +123,11 @@ class AXPY(BLAS):
                  'INCY': 1}
         return merge(namemap, other)
 
+
+    def pseudocode_call(self, inputs_names, outputs_names):
+        alpha, X, Y = inputs_names
+        return ["%(Y)s := %(alpha)s*%(X)s + %(Y)s" % locals()]
+
 class SYRK(BLAS):
     """ Symmetric Rank-K Update `alpha X' X + beta Y' """
     def __init__(self, alpha, A, beta, D, typecode='D'):
@@ -163,6 +175,11 @@ class SYRK(BLAS):
                  'UPLO': 'U'} # TODO: symmetric matrices might be stored low
         return merge(namemap, other)
 
+    def pseudocode_call(self, inputs_names, outputs_names):
+        alpha, A, beta, D = inputs_names
+        return ["%(D)s := %(alpha)s*%(A)s%(A)s' + %(beta)s*%(D)s" % locals()]
+
+
 class COPY(BLAS, Copy):
     """ Array to array copy """
     _inputs   = (X,)
@@ -188,3 +205,8 @@ class COPY(BLAS, Copy):
     def fortran_call(self, input_names, output_names):
         return [type(self).fortran_template %
                 self.codemap(input_names+output_names)]
+
+    def pseudocode_call(self, inputs_names, outputs_names):
+        inp = inputs_names[0]
+        out = outputs_names[0]
+        return ["%s := %s" % (out, inp)]
