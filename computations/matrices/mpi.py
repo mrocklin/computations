@@ -201,8 +201,8 @@ class iRecvWait(Wait):
 
     def pseudocode_call(self, input_names, output_names):
         data, status, ierr = output_names
-        source = self.source
-        return ['Wait on transfer of %(data)s from %(source)s to complete' % locals()]
+        request = self.request
+        return ['Wait on transfer of %(data)s from %(request)s to complete' % locals()]
 
 
 class iSendWait(Wait):
@@ -225,8 +225,8 @@ class iSendWait(Wait):
 
     def pseudocode_call(self, input_names, output_names):
         request, = input_names
-        dest = self.dest
-        return ['Wait on %(request)s to %(dest)s to complete' % locals()]
+        request = self.request
+        return ['Wait on %(request)s to complete' % locals()]
 
 
 tagdb = dict()
