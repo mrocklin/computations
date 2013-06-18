@@ -24,7 +24,7 @@ def new_ierr():
     new_ierr.i += 1
     return Symbol('ierr_%d' % new_ierr.i, integer=True)
 new_ierr.i = 0
-tags = it.count(1)
+tags = it.count(1000)
 new_tag = tags.next
 def new_status():
     new_status.i += 1
