@@ -220,7 +220,7 @@ def generate_module(comp, *args, **kwargs):
 # <KLUDGE>
 import os
 extra_flags_pre = "" # -Wl,-Bsymbolic-functions -Wl,-z,relro "
-extra_flags_post = " -L/usr/lib"
+extra_flags_post = " -L/usr/lib -lmpl"
 mpif90_flags = os.popen('mpif90 -show').read().split()[1:]
 # <\KLUDGE>
 
