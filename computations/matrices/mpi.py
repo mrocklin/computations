@@ -2,6 +2,7 @@ from sympy import Symbol
 from sympy.matrices import MatrixSymbol
 from computations.matrices.core import MatrixCall
 from computations.core import Computation, CompositeComputation
+from computations.util import memoize
 import itertools as it
 
 n, m = map(Symbol, 'nm')
@@ -236,9 +237,10 @@ def gettag(a, b, expr):
         tagdb[(a, b, expr)] = gettag._tag
         gettag._tag += 1
     return tagdb[(a, b, expr)]
-gettag._tag = 1
+gettag._tag = 1000
 
 
+@memoize
 def send(from_machine, to_machine, from_job, to_job):
     sharedvars = set(from_job.outputs).intersection(set(to_job.inputs))
     if not sharedvars:
@@ -247,6 +249,7 @@ def send(from_machine, to_machine, from_job, to_job):
                     for v in sharedvars]
     return CompositeComputation(*sends)
 
+@memoize
 def isend(from_machine, to_machine, from_job, to_job):
     sharedvars = set(from_job.outputs).intersection(set(to_job.inputs))
     if not sharedvars:
@@ -256,6 +259,7 @@ def isend(from_machine, to_machine, from_job, to_job):
     waits = [iSendWait(s.request) for s in sends]
     return CompositeComputation(*(sends + waits))
 
+@memoize
 def recv(from_machine, to_machine, from_job, to_job):
     sharedvars = set(from_job.outputs).intersection(set(to_job.inputs))
     if not sharedvars:
@@ -264,6 +268,7 @@ def recv(from_machine, to_machine, from_job, to_job):
                     for v in sharedvars]
     return CompositeComputation(*recvs)
 
+@memoize
 def irecv(from_machine, to_machine, from_job, to_job):
     sharedvars = set(from_job.outputs).intersection(set(to_job.inputs))
     if not sharedvars:
