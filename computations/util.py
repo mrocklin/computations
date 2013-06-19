@@ -106,3 +106,15 @@ def chunked(seq, n):
 
     for i in range(0, len(seq), n):
         yield seq[i:i+n]
+
+# http://code.activestate.com/recipes/578231-probably-the-fastest-memoization-decorator-in-the-/
+def memoize(f):
+    class memodict(dict):
+        def __getitem__(self, *key):
+            return dict.__getitem__(self, key)
+
+        def __missing__(self, key):
+            ret = self[key] = f(*key)
+            return ret
+
+    return memodict().__getitem__
