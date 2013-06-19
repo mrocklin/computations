@@ -221,7 +221,7 @@ def generate_module(comp, *args, **kwargs):
 import os
 extra_flags_pre = "" # -Wl,-Bsymbolic-functions -Wl,-z,relro "
 extra_flags_post = " -L/usr/lib"
-mpif90_flags = os.popen('mpif90 --show').read().split()[1:]
+mpif90_flags = os.popen('mpif90 -show').read().split()[1:]
 # <\KLUDGE>
 
 default_includes = ['/usr/include']
