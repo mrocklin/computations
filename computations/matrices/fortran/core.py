@@ -166,7 +166,8 @@ def generate(comp, inputs, outputs, name='f', **kwargs):
     def call(c):
         rv = c.fortran_call()
         try:
-            rv = ["! " + s for s in c.pseudocode_call()] + rv
+            # rv = ["! " + s for s in c.pseudocode_call()] + rv
+            rv = ['print *, "%s" ' % s for s in c.pseudocode_call()] + rv
         except NotImplementedError:
             pass
         return rv
