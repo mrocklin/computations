@@ -166,8 +166,8 @@ def generate(comp, inputs, outputs, name='f', **kwargs):
     def call(c):
         rv = c.fortran_call()
         try:
-            # rv = ["! " + s for s in c.pseudocode_call()] + rv
-            rv = ['print *, "%s" ' % s for s in c.pseudocode_call()] + rv
+            rv = ["! " + s for s in c.pseudocode_call()] + rv
+            # rv = ['print *, "%s" ' % s for s in c.pseudocode_call()] + rv
         except NotImplementedError:
             pass
         return rv
@@ -218,8 +218,10 @@ def generate_module(comp, *args, **kwargs):
 
 
 # <KLUDGE>
+import os
 extra_flags_pre = "" # -Wl,-Bsymbolic-functions -Wl,-z,relro "
-extra_flags_post = " -I/usr/include/mpich2 -I/usr/include/mpich2 -L/usr/lib -lmpichf90 -lmpichf90 -lmpich -lopa -lmpl -lrt -lcr -lpthread"
+extra_flags_post = " -L/usr/lib"
+mpif90_flags = os.popen('mpif90 --show').read().split()[1:]
 # <\KLUDGE>
 
 default_includes = ['/usr/include']
@@ -238,7 +240,7 @@ def compile_file(filename, modname='mod', libs=[], includes=[]):
     command += extra_flags_pre # KLUDGE
     command += '%(filename)s -m %(modname)s %(libstr)s %(incstr)s' % locals()
     command += extra_flags_post # KLUDGE
-    command += ' --f90flags=" '+ ' '.join(default_flags)+' " '
+    command += ' --f90flags=" '+ ' '.join(default_flags+mpif90_flags)+' " '
     pipe = os.popen(command)
     text = pipe.read()
     if "Error" in text:
