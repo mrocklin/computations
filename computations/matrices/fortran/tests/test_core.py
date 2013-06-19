@@ -83,7 +83,7 @@ def test_f2py_compile():
 
 def test_build():
     with assuming(Q.real_elements(X), Q.real_elements(y)):
-        f = build(ic, inputs, outputs)
+        f = build(ic, inputs, outputs, modname='build')
 
 def test_numerics():
     import numpy as np
