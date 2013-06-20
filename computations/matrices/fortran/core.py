@@ -238,7 +238,7 @@ def compile_file(filename, modname='mod', libs=[], includes=[]):
     includes = includes + default_includes
     incflags = ['-I'+inc for inc in includes]
     libflags = ['-l'+lib for lib in libs]
-    flags = libflags + default_flags + mpif90_flags + extra_flags
+    flags = libflags + incflags + default_flags + mpif90_flags + extra_flags
     front_flags = ' '.join(filter(front_flag, flags))
     back_flags  = ' '.join(remove(front_flag, flags))
     command = 'f2py -c '
