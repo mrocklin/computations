@@ -20,7 +20,7 @@ class Slice(Computation):
 
         s = "%s = %s(%s:%s:%s, %s:%s:%s)"%((child, parent) + rowslice+colslice)
         s = s.replace(':1,', ',').replace(':1)', ')')  # remove :1 strides
-        return s
+        return [s]
 
 class Join(Computation):
     """ Join Matrices into a BlockMatrix

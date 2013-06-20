@@ -14,9 +14,8 @@ def test_Slice():
     assert c.outputs == (Xs,)
     assert c.inputs  == (X,)
 
-    s = c.fortran_call(["X"], ["Y"])
-    print s
-    assert s == "Y = X(11:20, 41:50)"
+    result = c.fortran_call(["X"], ["Y"])
+    assert result == ["Y = X(11:20, 41:50)"]
 
 def test_Join():
     c = Join(B)
