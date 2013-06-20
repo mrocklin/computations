@@ -7,8 +7,10 @@ class Slice(Computation):
         A SymPy MatrixSlice object
     """
     def __init__(self, matrixslice):
-        self.inputs = (matrixslice.parent,)
-        self.outputs = (matrixslice,)
+        self.arg = matrixslice
+
+    inputs = property(lambda self: (self.arg.parent, ))
+    outputs = property(lambda self: (self.arg,))
 
     def fortran_call(self, input_names, output_names):
         arg     = self.outputs[0]
@@ -29,8 +31,10 @@ class Join(Computation):
         A SymPy BlockMatrix
     """
     def __init__(self, blockmatrix):
-        self.inputs = tuple(blockmatrix.blocks)
-        self.outputs = (blockmatrix,)
+        self.arg = blockmatrix
+
+    inputs = property(lambda self: tuple(self.arg.blocks))
+    outputs = property(lambda self: (self.arg,))
 
     def fortran_call(self, input_names, output_names):
         parent = output_names[0]
