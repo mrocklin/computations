@@ -114,3 +114,7 @@ def test_nbytes():
     with assuming(Q.real_elements(A), Q.real(x)):
         assert nbytes(A) == 2*3*8
         assert nbytes(x) == 8
+
+def test_front_flag():
+    assert all(front_flag(s) for s in
+            ['-lblas', '-L/usr/lib', '-I/usr/include'])

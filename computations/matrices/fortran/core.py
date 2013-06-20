@@ -219,8 +219,7 @@ def generate_module(comp, *args, **kwargs):
 
 # <KLUDGE>
 import os
-extra_flags_pre = "" # -Wl,-Bsymbolic-functions -Wl,-z,relro "
-extra_flags_post = " -L/usr/lib -lmpl"
+extra_flags = ["-L/usr/lib",  "-I/home/mrocklin/include"]
 mpif90_flags = os.popen('mpif90 -show').read().split()[1:]
 # <\KLUDGE>
 
@@ -232,15 +231,19 @@ def compile(source, filename='tmp.f90', modname='mod',
         f.write(source)
     compile_file(filename, modname, libs, includes)
 
+def front_flag(flag):
+    return flag.lower()[:2] in ('-l', '-i')
+
 def compile_file(filename, modname='mod', libs=[], includes=[]):
     includes = includes + default_includes
-    libstr = ' '.join('-l'+lib for lib in libs)
-    incstr = ' '.join('-I'+i for i in includes)
+    incflags = ['-I'+inc for inc in includes]
+    libflags = ['-l'+lib for lib in libs]
+    flags = libflags + default_flags + mpif90_flags + extra_flags
+    front_flags = ' '.join(filter(front_flag, flags))
+    back_flags  = ' '.join(remove(front_flag, flags))
     command = 'f2py -c '
-    command += extra_flags_pre # KLUDGE
-    command += '%(filename)s -m %(modname)s %(libstr)s %(incstr)s' % locals()
-    command += extra_flags_post # KLUDGE
-    command += ' --f90flags=" '+ ' '.join(default_flags+mpif90_flags)+' " '
+    command += ('%(filename)s -m %(modname)s %(front_flags)s '
+                ' --f90flags="%(back_flags)s"' % locals())
     pipe = os.popen(command)
     text = pipe.read()
     if "Error" in text:
