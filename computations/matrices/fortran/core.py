@@ -390,5 +390,6 @@ def dimensions(comp):
 
     For example if a computation contains MatrixSymbol('X', n, m) then n and m
     are in the set returned by this function """
-    return set(remove(constant_arg, sum([v.expr.shape for v in comp.variables
-                           if isinstance(v.expr, MatrixExpr)], ())))
+    shapes = [v.expr.shape for v in comp.variables
+                           if isinstance(v.expr, MatrixExpr)]
+    return set((s for shape in shapes for v in shape for s in v.free_symbols))

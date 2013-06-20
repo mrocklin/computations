@@ -1,9 +1,10 @@
 from computations.matrices.fortran.core import *
 from sympy import MatrixSymbol, Symbol, Q
 from computations.inplace import inplace_compile
-from computations.matrices.blas import GEMM
+from computations.matrices.blas import GEMM, AXPY
 
 n = Symbol('n')
+m = Symbol('m')
 X = MatrixSymbol('X', n, n)
 Y = MatrixSymbol('Y', n, n)
 y = MatrixSymbol('y', n, 1)
@@ -25,6 +26,11 @@ def test_simple():
 def test_dimensions():
     assert set(dimensions(ic)) == set((n, ))
     assert 'integer :: n' in s
+
+    c = inplace_compile(AXPY(1.0, MatrixSymbol('X', n, 2*m), MatrixSymbol('Y',
+        n, 2*m)))
+    assert set(dimensions(c)) == set((n, m))
+
 
 def test_dimension_initialization():
     assert dimension_initialization(n, ExprToken(y, 'yvar')) == 'n = size(yvar, 1)'
