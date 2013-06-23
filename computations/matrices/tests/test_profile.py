@@ -47,7 +47,8 @@ def test_linregress():
     cc = CompositeComputation(*map(ProfileMPI, c.toposort()))
     with assuming(*assumptions):
         f = build(cc, [X, y], [comp.duration for comp in cc.toposort()],
-                filename='tmp/profile_linregress.f90', modname='profile_linregress')
+                filename='tmp/profile_linregress.f90',
+                modname='profile_linregress')
     nX, ny = np.random.rand(500, 500), np.random.rand(500, 1)
     t1, t2, t3 = f(nX, ny)
     assert all(isinstance(t, float) for t in (t1, t2, t3))
