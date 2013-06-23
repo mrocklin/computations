@@ -11,6 +11,12 @@ def is_number(x):
     return (isinstance(x, (int, float)) or
             isinstance(x, Expr) and x.is_Number)
 
+bases = [Expr, MatrixExpr]
+def basetype(expr):
+    for base in bases:
+        if isinstance(expr, base):
+            return base
+
 def remove_numbers(coll):
     """ Remove numbers from a collection
 
@@ -76,6 +82,10 @@ class MatrixCall(Computation):
         argnames = [print_number(a) if is_number(a) else name_map[a] for a in args]
         codemap = self.codemap(argnames)
         return [self.fortran_template % codemap]
+
+    def typecheck(self):
+        return all(basetype(i) == basetype(_i)
+                for (i, _i) in zip(self.inputs, self._inputs))
 
 
 def fortran_double_str(x):

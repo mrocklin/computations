@@ -31,6 +31,10 @@ class ReadFromFile(Computation):
         filename = self.filename
         return ['%(output)s := Read from %(filename)s' % locals()]
 
+    def typecheck(self):
+        return isinstance(self.inputs, MatrixExpr)
+
+
 class WriteToFile(Computation):
     def __init__(self, filename, input, identifier=None):
         identifier = identifier or new_fid()
@@ -51,6 +55,9 @@ class WriteToFile(Computation):
         input, = input_names
         filename = self.filename
         return ['Write %(input)s to %(filename)s' % locals()]
+
+    def typecheck(self):
+        return isinstance(self.inputs, MatrixExpr)
 
 
 def disk_io(comp, filenames):

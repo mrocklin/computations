@@ -24,3 +24,10 @@ def test_sympify_floats():
     Y = MatrixSymbol('Y', 3, 3)
     g = GEMM(2.0, X, Y, 0.0, Y)
     assert isinstance(g.args[0], Float)
+
+def test_typecheck():
+    X = MatrixSymbol('X', 3, 3)
+    Y = MatrixSymbol('Y', 3, 3)
+    assert GEMM(2.0, X, Y, 0.0, Y).typecheck()
+    assert not GEMM(2.0, 1, Y, 0.0, Y).typecheck()
+    assert not GEMM(2.0, X, Y, X, Y).typecheck()

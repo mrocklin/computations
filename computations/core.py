@@ -64,6 +64,9 @@ class Computation(object):
             Computation.depends_on"""
         return other.depends_on(self, **kwargs)
 
+    def typecheck(self):
+        return True
+
     libs = []
     includes = []
 
