@@ -117,7 +117,7 @@ def tokens_of(comp, inputs, outputs, **kwargs):
     input_vars = [v for v in vars if v.token in input_tokens]
     output_tokens = sorted_tokens(comp.outputs, outputs)
     tokens = list(set(map(gettoken, vars)))
-    dimens = dimensions(comp)
+    dimens = remove(constant_arg, dimensions(comp))
 
     return (computations, vars, input_tokens, input_vars, output_tokens, tokens,
             dimens)
