@@ -1,12 +1,12 @@
 from computations.core import Computation, CompositeComputation, Identity
+from term import termify
+termify(Computation)
+termify(Identity)
+termify(CompositeComputation)
 
-Computation._as_logpy = lambda self: (type(self), self.inputs, self.outputs)
-Identity._as_logpy = lambda self: (type(self), self.inputs)
-CompositeComputation._as_logpy = lambda self: (type(self), self.computations)
-
-Computation._from_logpy = staticmethod(lambda (t, ins, outs): t(ins, outs))
-Identity._from_logpy = staticmethod(lambda (t, ins): t(ins))
-CompositeComputation._from_logpy = staticmethod(lambda (op, args): op(*args))
+CompositeComputation._term_args = lambda self: self.computations
+CompositeComputation._term_new = staticmethod(
+        lambda args: CompositeComputation(*args))
 
 from logpy import fact
 from logpy.assoccomm import commutative, associative
