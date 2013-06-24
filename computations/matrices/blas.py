@@ -17,7 +17,7 @@ class BLAS(MatrixCall):
 class MM(BLAS):
     """ Matrix Multiply """
     def __init__(self, alpha, A, B, beta, C, typecode='D'):
-        if isinstance(C, ZeroMatrix):
+        if not C:
             C = ZeroMatrix(A.rows, B.cols)
         if isinstance(alpha, int):    alpha = float(alpha)
         if isinstance(beta, int):     beta = float(beta)

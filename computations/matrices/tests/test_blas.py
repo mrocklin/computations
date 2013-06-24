@@ -1,7 +1,7 @@
 from computations.matrices.blas import GEMM, SYMM, SYRK, AXPY, COPY
 from sympy.matrices.expressions import MatrixSymbol
 from sympy.core import Symbol
-from sympy import Q, S
+from sympy import Q, S, ZeroMatrix
 
 a, b, c, d, x, y, z, n, m, l, k = map(Symbol, 'abcdxyznmlk')
 
@@ -12,6 +12,7 @@ def test_GEMM():
     assert GEMM(a, X, Y, b, Z).inputs == (a, X, Y, b, Z)
     assert GEMM(a, X, Y, b, Z).outputs == (a*X*Y+b*Z, )
     assert GEMM(1, X, Y, 0, Y).inputs[0] == 1.0
+    assert GEMM(1, X, Y, 0, 0).inputs[4] == ZeroMatrix(X.rows, Y.cols)
     # assert GEMM(1, X, Y, 0, Y).variable_inputs == (X, Y)
 
 def test_transpose_GEMM():
