@@ -41,7 +41,7 @@ class MatrixCall(Computation):
             typecode = 'D'
         else:
             args, typecode = args[:-1], args[-1]
-        self.args = tuple(map(defloat, args))
+        self.args = args
         self.typecode = typecode
 
     inputs = property(lambda self: self.args)
