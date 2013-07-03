@@ -15,6 +15,12 @@ def test_GEMM():
     assert GEMM(1, X, Y, 0, 0).inputs[4] == ZeroMatrix(X.rows, Y.cols)
     # assert GEMM(1, X, Y, 0, Y).variable_inputs == (X, Y)
 
+def test_GEMM_fortran():
+    X = MatrixSymbol('X', n, n)
+    Y = MatrixSymbol('Y', n, n)
+    assert '_' not in GEMM(1, X, Y, 0, ZeroMatrix(Symbol('_n'),
+        Symbol('_m'))).fortran_call([1, 'X', 'Y', 0, 'var'], ['var'])
+
 def test_transpose_GEMM():
     X = MatrixSymbol('X', 3, 3)
     Y = MatrixSymbol('Y', 3, 3)
