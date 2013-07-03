@@ -32,7 +32,7 @@ class MM(BLAS):
     @property
     def inputs(self):
         alpha, A, B, beta, C = self.args
-        if isinstance(C, ZeroMatrix):    # special case this
+        if not C:    # special case this
             C = ZeroMatrix(A.rows, B.cols)
         # Sometimes we use C only as an output. It should be detransposed
         A = detranspose(A)
@@ -42,13 +42,13 @@ class MM(BLAS):
     @property
     def outputs(self):
         alpha, A, B, beta, C = self.args
-        if isinstance(C, ZeroMatrix):    # special case this
+        if not C:    # special case this
             C = ZeroMatrix(A.rows, B.cols)
         return (alpha*A*B + beta*C,)
 
     def codemap(self, names, assumptions=True):
         varnames = 'alpha A B beta C'.split()
-        alpha, A, B, beta, C = self.args
+        alpha, A, B, beta, C = self.inputs
         if is_number(names[0]):     names[0] = float(names[0])
         if is_number(names[3]):     names[3] = float(names[3])
 
@@ -131,7 +131,7 @@ class AXPY(BLAS):
 class SYRK(BLAS):
     """ Symmetric Rank-K Update `alpha X' X + beta Y' """
     def __init__(self, alpha, A, beta, D, typecode='D'):
-        if isinstance(D, ZeroMatrix):
+        if not D:
             D = ZeroMatrix(A.rows, A.rows)
         if isinstance(alpha, int):    alpha = float(alpha)
         if isinstance(beta, int):     beta = float(beta)
@@ -146,7 +146,7 @@ class SYRK(BLAS):
     @property
     def inputs(self):
         alpha, A, beta, D = self.args
-        if isinstance(D, ZeroMatrix):    # special case this
+        if not D:
             D = ZeroMatrix(A.rows, A.rows)
         # Sometimes we use C only as an output. It should be detransposed
         if isinstance(A, Transpose) and not isinstance(D, Transpose):
@@ -156,7 +156,7 @@ class SYRK(BLAS):
     @property
     def outputs(self):
         alpha, A, beta, D = self.args
-        if isinstance(D, ZeroMatrix):    # special case this
+        if not D:
             D = ZeroMatrix(A.rows, A.rows)
         return (alpha*A*A.T + beta*D,)
 
@@ -166,7 +166,7 @@ class SYRK(BLAS):
 
     def codemap(self, names, assumptions=True):
         varnames = 'alpha A beta D'.split()
-        alpha, A, beta, D = self.args
+        alpha, A, beta, D = self.inputs
 
         namemap  = dict(zip(varnames, names))
         other = {'TRANS': trans(A), 'LDA': LD(A), 'LDD': LD(D),
