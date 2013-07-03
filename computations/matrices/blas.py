@@ -48,7 +48,7 @@ class MM(BLAS):
 
     def codemap(self, names, assumptions=True):
         varnames = 'alpha A B beta C'.split()
-        alpha, A, B, beta, C = self.inputs
+        alpha, A, B, beta, C = self.args
         if is_number(names[0]):     names[0] = float(names[0])
         if is_number(names[3]):     names[3] = float(names[3])
 
@@ -166,7 +166,8 @@ class SYRK(BLAS):
 
     def codemap(self, names, assumptions=True):
         varnames = 'alpha A beta D'.split()
-        alpha, A, beta, D = self.inputs
+        alpha, A, beta, D = self.args
+        D = self.inputs[-1]
 
         namemap  = dict(zip(varnames, names))
         other = {'TRANS': trans(A), 'LDA': LD(A), 'LDD': LD(D),

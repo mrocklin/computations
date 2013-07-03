@@ -33,9 +33,19 @@ def test_transpose_GEMM():
 def test_SYRK():
     X = MatrixSymbol('X', n, k)
     Z = MatrixSymbol('Z', n, n)
+    Zk = MatrixSymbol('Z', k, k)
     assert SYRK(a, X, b, Z).inputs == (a, X, b, Z)
-    assert SYRK(a, X, b, Z).outputs == (a*X*X.T+b*Z, )
+    assert SYRK(a, X, b, Z).outputs == (a*X*X.T + b*Z, )
+    assert SYRK(a, X.T, b, Zk).inputs == (a, X, b, Zk)
+    assert SYRK(a, X.T, b, Zk).outputs == (a*X.T*X + b*Zk, )
     # assert SYRK(1, X, 0, X).variable_inputs == (X,)
+
+def test_SYRK_fortran():
+    X = MatrixSymbol('X', n, k)
+    Z = MatrixSymbol('Z', n, n)
+    Zk = MatrixSymbol('Z', k, k)
+    assert 'T' not in SYRK(a, X, b, Z).fortran_call(['a', 'X', 'b', 'Z'], ['Z'])[0]
+    assert 'T' in SYRK(a, X.T, b, Zk).fortran_call(['a', 'X', 'b', 'Z'], ['Z'])[0]
 
 def test_transpose_SYRK():
     X = MatrixSymbol('X', 3, 3)
