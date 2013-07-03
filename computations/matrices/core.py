@@ -70,7 +70,7 @@ class MatrixCall(Computation):
 
     @classmethod
     def fnname(cls, typecode):
-        return (typecode+cls.__name__).lower()
+        return typecode+cls.__name__.lower()
 
     @staticmethod
     def arguments(inputs, outputs):
@@ -82,6 +82,14 @@ class MatrixCall(Computation):
         argnames = [print_number(a) if is_number(a) else name_map[a] for a in args]
         codemap = self.codemap(argnames)
         return [self.fortran_template % codemap]
+
+    def cuda_call(self, input_names, output_names):
+        args = type(self).arguments(self.inputs, self.outputs)
+        name_map = dict(zip(self.inputs+self.outputs, input_names+output_names))
+        argnames = [print_number(a) if is_number(a) else name_map[a]+"_gpu" for a in args]
+        codemap = self.codemap(argnames)
+        return [self.cuda_template % codemap]
+
 
     def typecheck(self):
         return all(basetype(i) == basetype(_i)
