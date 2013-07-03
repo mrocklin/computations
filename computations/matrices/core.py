@@ -11,7 +11,7 @@ def is_number(x):
     return (isinstance(x, (int, float)) or
             isinstance(x, Expr) and x.is_Number)
 
-bases = [Expr, MatrixExpr]
+bases = [(float, Expr), MatrixExpr]
 def basetype(expr):
     for base in bases:
         if isinstance(expr, base):

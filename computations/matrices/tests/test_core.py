@@ -23,7 +23,7 @@ def test_sympify_floats():
     X = MatrixSymbol('X', 3, 3)
     Y = MatrixSymbol('Y', 3, 3)
     g = GEMM(2.0, X, Y, 0.0, Y)
-    assert isinstance(g.args[0], Float)
+    assert isinstance(g.args[0], (float, Float))
 
 def test_typecheck():
     X = MatrixSymbol('X', 3, 3)
