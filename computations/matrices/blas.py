@@ -49,6 +49,7 @@ class MM(BLAS):
     def codemap(self, names, assumptions=True):
         varnames = 'alpha A B beta C'.split()
         alpha, A, B, beta, C = self.args
+        C = self.inputs[-1]
         if is_number(names[0]):     names[0] = float(names[0])
         if is_number(names[3]):     names[3] = float(names[3])
 
