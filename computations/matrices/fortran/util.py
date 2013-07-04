@@ -1,4 +1,4 @@
-from sympy import Expr, ZeroMatrix
+from sympy import Expr, ZeroMatrix, Symbol
 
 def is_number(x):
     return (isinstance(x, (int, float)) or
@@ -8,8 +8,8 @@ def constant_arg(arg):
     """ Is this argument a constant?
 
     If so we don't want to include it as a parameter """
-    return (is_number(arg) or isinstance(arg, ZeroMatrix) or 'MPI_' in
-            str(arg))
+    return (is_number(arg) or isinstance(arg, ZeroMatrix) or
+            (isinstance(arg, Symbol) and arg.name[:4] == 'MPI_'))
 
 
 def update_class(old, new):
