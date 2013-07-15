@@ -13,6 +13,12 @@ from sympy.matrices.expressions import ZeroMatrix, Transpose
 class BLAS(MatrixCall):
     """ Basic Linear Algebra Subroutine - Dense Matrix computation """
     libs = ["blas"]
+    def cuda_use_statements(self):
+      return ["cublasHandle_t handle;"] 
+
+    def cuda_include_statements(self):
+      return ['#include <cuda_runtime.h>', '#include "cublas_v2.h"']
+
 
 class MM(BLAS):
     """ Matrix Multiply """
@@ -76,6 +82,11 @@ class GEMM(MM):
                         "%(M)s, %(N)s, %(K)s, "
                         "%(alpha)s, %(A)s, %(LDA)s, "
                         "%(B)s, %(LDB)s, %(beta)s, %(C)s, %(LDC)s)")
+    
+    cuda_template = ("cublas%(fn)s(handle, '%(TRANSA)s', '%(TRANSB)s', "
+                        "%(M)s, %(N)s, %(K)s, "
+                        "%(alpha)s, %(A)s, %(LDA)s, "
+                        "%(B)s, %(LDB)s, %(beta)s, %(C)s, %(LDC)s);")
 
 class SYMM(MM):
     """ Symmetric Matrix Multiply """
