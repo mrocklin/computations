@@ -19,9 +19,9 @@ with assuming(Q.real_elements(X), Q.real_elements(y)):
 
 def test_simple():
     assert isinstance(s, str)
-    assert "call dgemm('N', 'N', n, 1, n" in s
+    assert "call dgemm('n', 'n', n, 1, n" in s.lower()
     assert "1.0" in s
-    assert "X, n, y, n,"  in s
+    assert "x, n, y, n,"  in s.lower()
 
 def test_dimensions():
     assert set(dimensions(ic)) == set((n, ))
