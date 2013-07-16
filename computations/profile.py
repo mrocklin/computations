@@ -93,7 +93,7 @@ class ProfileMPI(Profile):
 from computations.inplace import make_getname, TokenComputation, ExprToken
 tokenize = make_getname()
 
-class ProfileMPIInplace(TokenComputation, ProfileMPI):
+class ProfileMPIInplace(ProfileMPI, TokenComputation):
     def __init__(self, icomp, duration=None):
         assert isinstance(icomp, TokenComputation)
         self.icomp = icomp
@@ -103,10 +103,10 @@ class ProfileMPIInplace(TokenComputation, ProfileMPI):
                            for t in (self.duration, new_time(), new_time())])
 
     inputs  = property(lambda self: self.icomp.inputs)
-    input_tokens = property(lambda self: [v.token for v in self.inputs])
+    input_tokens = property(lambda self: tuple(v.token for v in self.inputs))
     time_vars = property(lambda self: self._time_vars)
     outputs = property(lambda self: self.time_vars + self.icomp.outputs)
-    output_tokens = property(lambda self: [v.token for v in self.outputs])
+    output_tokens = property(lambda self: tuple(v.token for v in self.outputs))
 
     def fortran_call(self):
         duration, start, end = self.output_tokens[:3]
