@@ -212,7 +212,7 @@ def generate_module(comp, *args, **kwargs):
 
     includes = join("include '%s.h'" % inc for inc in comp.includes)
 
-    subroutines = '\n\n'.join(g(comp, *args, **kwargs) for g in generate_fns)
+    subroutines = '\n\n'.join([g(comp, *args, **kwargs) for g in generate_fns])
 
     return module_template % locals()
 
