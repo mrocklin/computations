@@ -247,10 +247,29 @@ def maybe_expr(v):
 # TODO: make send, recv, etc... return TokenComputations if they receive them
 #       Use variable tokens from inputs.  How to get new tokens? need tokenier?
 
+from computations.inplace import tokenize, ExprToken, TokenComputation
+
+def isend_expr(v, from_machine, to_machine):
+    send = iSend(v, to_machine, tag=gettag(from_machine, to_machine, v))
+    wait = iSendWait(send.request)
+    return CompositeComputation(send, wait)
+
+def isend_exprtoken(et, from_machine, to_machine, tokenizer):
+    tok = lambda expr: et.token if expr==et.expr else tokenizer(expr)
+    return tokenize(isend_expr(et.expr, from_machine, to_machine), tokenizer=tok)
+
+def irecv_expr(v, from_machine, to_machine):
+    recv = iRecv(v, from_machine, tag=gettag(from_machine, to_machine, v))
+    wait = iRecvWait(recv.data, recv.request)
+    return CompositeComputation(recv, wait)
+
+def irecv_exprtoken(et, from_machine, to_machine, tokenizer):
+    tok = lambda expr: et.token if expr==et.expr else tokenizer(expr)
+    return tokenize(irecv_expr(et.expr, from_machine, to_machine), tokenizer=tok)
+
 @memoize
 def send(from_machine, to_machine, from_job, to_job):
-    sharedvars = map(maybe_expr,
-                     set(from_job.outputs).intersection(set(to_job.inputs)))
+    sharedvars = set(from_job.outputs).intersection(set(to_job.inputs))
     if not sharedvars:
         raise ValueError('No Shared Variables')
     sends = [Send(v, to_machine, tag=gettag(from_machine, to_machine, v))
@@ -258,20 +277,22 @@ def send(from_machine, to_machine, from_job, to_job):
     return CompositeComputation(*sends)
 
 @memoize
-def isend(from_machine, to_machine, from_job, to_job):
-    sharedvars = map(maybe_expr,
-                     set(from_job.outputs).intersection(set(to_job.inputs)))
+def isend(from_machine, to_machine, from_job, to_job, tokenizer=None):
+    sharedvars = set(from_job.outputs).intersection(set(to_job.inputs))
     if not sharedvars:
         raise ValueError('No Shared Variables')
-    sends = [iSend(v, to_machine, tag=gettag(from_machine, to_machine, v))
-                    for v in sharedvars]
-    waits = [iSendWait(s.request) for s in sends]
-    return CompositeComputation(*(sends + waits))
+    if isinstance(from_job, TokenComputation):
+        return CompositeComputation(*[
+            isend_exprtoken(v, from_machine, to_machine, tokenizer)
+                                         for v in sharedvars])
+    else:
+        return CompositeComputation(*[isend_expr(v, from_machine, to_machine)
+                                         for v in sharedvars])
+
 
 @memoize
 def recv(from_machine, to_machine, from_job, to_job):
-    sharedvars = map(maybe_expr,
-                     set(from_job.outputs).intersection(set(to_job.inputs)))
+    sharedvars = set(from_job.outputs).intersection(set(to_job.inputs))
     if not sharedvars:
         raise ValueError('No Shared Variables')
     recvs = [Recv(v, from_machine, tag=gettag(from_machine, to_machine, v))
@@ -279,15 +300,17 @@ def recv(from_machine, to_machine, from_job, to_job):
     return CompositeComputation(*recvs)
 
 @memoize
-def irecv(from_machine, to_machine, from_job, to_job):
-    sharedvars = map(maybe_expr,
-                     set(from_job.outputs).intersection(set(to_job.inputs)))
+def irecv(from_machine, to_machine, from_job, to_job, tokenizer=None):
+    sharedvars = set(from_job.outputs).intersection(set(to_job.inputs))
     if not sharedvars:
         raise ValueError('No Shared Variables')
-    recvs = [iRecv(v, from_machine, tag=gettag(from_machine, to_machine, v))
-                    for v in sharedvars]
-    waits = [iRecvWait(r.data, r.request) for r in recvs]
-    return CompositeComputation(*(recvs + waits))
+    if isinstance(from_job, TokenComputation):
+        return CompositeComputation(*[
+            irecv_exprtoken(v, from_machine, to_machine, tokenizer)
+                                         for v in sharedvars])
+    else:
+        return CompositeComputation(*[irecv_expr(v, from_machine, to_machine)
+                                         for v in sharedvars])
 
 
 def mpi_key(c):

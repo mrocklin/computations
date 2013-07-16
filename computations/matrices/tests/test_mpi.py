@@ -5,6 +5,8 @@ from computations.matrices.mpi import mpi_key, mpi_tag_key
 from computations.matrices.blas import GEMM, AXPY
 from sympy.matrices.expressions import MatrixSymbol
 from sympy import ask, Q, assuming
+from computations.core import CompositeComputation
+from computations.inplace import TokenComputation
 
 A = MatrixSymbol('A', 3, 4)
 B = MatrixSymbol('B', 4, 5)
@@ -67,6 +69,27 @@ def test_irecv():
     assert len(s.computations) == 2
     assert A*B+C in s.outputs
 
+def test_isend_token():
+    from computations.inplace import inplace_compile, make_getname
+    tokenizer = make_getname()
+    ic = inplace_compile(gemm + axpy, tokenizer=tokenizer)
+    a, b = ic.computations
+    s = isend(1, 2, a, b, tokenizer)
+    assert isinstance(s, CompositeComputation)
+    assert all(isinstance(c, TokenComputation) for c in s.computations)
+    assert isinstance(s.toposort()[0].comp, iSend)
+    assert ic.toposort()[0].outputs[0] in s.inputs
+
+def test_isend_token():
+    from computations.inplace import inplace_compile, make_getname
+    tokenizer = make_getname()
+    ic = inplace_compile(gemm + axpy, tokenizer=tokenizer)
+    a, b = ic.computations
+    r = irecv(1, 2, a, b, tokenizer)
+    assert isinstance(r, CompositeComputation)
+    assert all(isinstance(c, TokenComputation) for c in r.computations)
+    assert isinstance(r.toposort()[0].comp, iRecv)
+    assert ic.toposort()[0].outputs[0] in r.outputs
 
 def test_types():
     from computations.matrices.fortran.core import dtype_of
