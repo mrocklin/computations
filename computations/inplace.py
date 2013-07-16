@@ -225,7 +225,7 @@ def remove_zero_copies(comp, is_zero=lambda e: not e):
         return not (issubclass(comp.op, Copy) and is_zero(comp.inputs[0].expr))
     return CompositeComputation(*filter(condition, comp.computations))
 
-def inplace_compile(comp, **kwargs):
+def inplace_compile(comp, tokenizer=None, **kwargs):
     """ Compile a mathematical computation into a nice inplace one
 
     This is a master function that calls the following in order
@@ -236,7 +236,7 @@ def inplace_compile(comp, **kwargs):
         remove_single_copies
         inplace_tokenize
     """
-    tokenizer = make_getname()
+    tokenizer = tokenizer or make_getname()
     stage0 = comp
     stage1 = tokenize(stage0, tokenizer)
     stage2 = purify(stage1, tokenizer, **kwargs)
