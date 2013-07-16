@@ -240,9 +240,17 @@ def gettag(a, b, expr):
 gettag._tag = 1000
 
 
+def maybe_expr(v):
+    from computations.inplace import ExprToken
+    return v.expr if isinstance(v, ExprToken) else v
+
+# TODO: make send, recv, etc... return TokenComputations if they receive them
+#       Use variable tokens from inputs.  How to get new tokens? need tokenier?
+
 @memoize
 def send(from_machine, to_machine, from_job, to_job):
-    sharedvars = set(from_job.outputs).intersection(set(to_job.inputs))
+    sharedvars = map(maybe_expr,
+                     set(from_job.outputs).intersection(set(to_job.inputs)))
     if not sharedvars:
         raise ValueError('No Shared Variables')
     sends = [Send(v, to_machine, tag=gettag(from_machine, to_machine, v))
@@ -251,7 +259,8 @@ def send(from_machine, to_machine, from_job, to_job):
 
 @memoize
 def isend(from_machine, to_machine, from_job, to_job):
-    sharedvars = set(from_job.outputs).intersection(set(to_job.inputs))
+    sharedvars = map(maybe_expr,
+                     set(from_job.outputs).intersection(set(to_job.inputs)))
     if not sharedvars:
         raise ValueError('No Shared Variables')
     sends = [iSend(v, to_machine, tag=gettag(from_machine, to_machine, v))
@@ -261,7 +270,8 @@ def isend(from_machine, to_machine, from_job, to_job):
 
 @memoize
 def recv(from_machine, to_machine, from_job, to_job):
-    sharedvars = set(from_job.outputs).intersection(set(to_job.inputs))
+    sharedvars = map(maybe_expr,
+                     set(from_job.outputs).intersection(set(to_job.inputs)))
     if not sharedvars:
         raise ValueError('No Shared Variables')
     recvs = [Recv(v, from_machine, tag=gettag(from_machine, to_machine, v))
@@ -270,7 +280,8 @@ def recv(from_machine, to_machine, from_job, to_job):
 
 @memoize
 def irecv(from_machine, to_machine, from_job, to_job):
-    sharedvars = set(from_job.outputs).intersection(set(to_job.inputs))
+    sharedvars = map(maybe_expr,
+                     set(from_job.outputs).intersection(set(to_job.inputs)))
     if not sharedvars:
         raise ValueError('No Shared Variables')
     recvs = [iRecv(v, from_machine, tag=gettag(from_machine, to_machine, v))
