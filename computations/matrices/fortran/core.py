@@ -89,7 +89,9 @@ def dtype_of(expr, *assumptions):
 
 nbytes_dtype = {'integer': 4,
                 'real(kind=8)': 8,
-                'complex(kind=8)': 8}
+                'real*8': 8,
+                'complex(kind=8)': 8,
+                'complex*8': 8}
 
 def numel(var):
     if isinstance(var, MatrixExpr):
