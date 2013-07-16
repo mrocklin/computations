@@ -1,6 +1,6 @@
 from itertools import chain
 from sympy import Symbol
-from computations.core import Computation
+from computations.core import Computation, CompositeComputation
 
 class Ticks(Symbol):
     def fortran_type(self):
@@ -116,3 +116,14 @@ class ProfileMPIInplace(TokenComputation, ProfileMPI):
                 self.comp.fortran_call(self.input_tokens, comp_output_names) +
                 ['%(end)s = MPI_Wtime()' % d,
                  '%(duration)s = %(end)s - %(start)s' % d])
+
+def profile(comp, **kwargs):
+    """ Profile a computation
+
+    Wraps ProfileMPI, ProfileMPIInplace, and handles Composites """
+    if isinstance(comp, CompositeComputation):
+        return CompositeComputation(*map(profile, comp.computations))
+    elif isinstance(comp, TokenComputation):
+        return ProfileMPIInplace(comp, **kwargs)
+    else:
+        return ProfileMPI(comp, **kwargs)
