@@ -1,6 +1,6 @@
 from sympy import Symbol, MatrixSymbol, Q, assuming
 from computations.matrices.blas import GEMM
-from computations.profile import Profile, ProfileMPI
+from computations.profile import Profile, ProfileMPI, ProfileMPIInplace
 from computations.core import CompositeComputation
 from computations.matrices.fortran.core import build
 import numpy as np
@@ -52,3 +52,14 @@ def test_linregress():
     nX, ny = np.random.rand(500, 500), np.random.rand(500, 1)
     t1, t2, t3 = f(nX, ny)
     assert all(isinstance(t, float) for t in (t1, t2, t3))
+
+def test_ProfileMPIInplace():
+    from computations.inplace import inplace_compile, ExprToken
+    from computations.matrices.blas import COPY
+    igemm = inplace_compile(gemm, Copy=COPY)
+    pigemm = ProfileMPIInplace(igemm)
+    assert all(isinstance(v, ExprToken) for v in pigemm.variables)
+    code = pigemm.fortran_call()
+    print '\n'.join(code)
+    assert any('gemm' in s for s in code)
+    assert any('MPI_Wtime()' in s for s in code)

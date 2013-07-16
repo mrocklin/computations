@@ -89,3 +89,30 @@ class ProfileMPI(Profile):
                 self.comp.fortran_call(input_names, comp_output_names) +
                 ['%(end)s = MPI_Wtime()' % d,
                  '%(duration)s = %(end)s - %(start)s' % d])
+
+from computations.inplace import make_getname, TokenComputation, ExprToken
+tokenize = make_getname()
+
+class ProfileMPIInplace(TokenComputation, ProfileMPI):
+    def __init__(self, icomp, duration=None):
+        assert isinstance(icomp, TokenComputation)
+        self.icomp = icomp
+        self.comp = icomp.comp
+        self.duration = duration or new_time()
+        self._time_vars = tuple([ExprToken(t, tokenize(t))
+                           for t in (self.duration, new_time(), new_time())])
+
+    inputs  = property(lambda self: self.icomp.inputs)
+    input_tokens = property(lambda self: [v.token for v in self.inputs])
+    time_vars = property(lambda self: self._time_vars)
+    outputs = property(lambda self: self.time_vars + self.icomp.outputs)
+    output_tokens = property(lambda self: [v.token for v in self.outputs])
+
+    def fortran_call(self):
+        duration, start, end = self.output_tokens[:3]
+        comp_output_names = self.output_tokens[3:]
+        d = locals()
+        return (['%(start)s = MPI_Wtime()' % d] +
+                self.comp.fortran_call(self.input_tokens, comp_output_names) +
+                ['%(end)s = MPI_Wtime()' % d,
+                 '%(duration)s = %(end)s - %(start)s' % d])
