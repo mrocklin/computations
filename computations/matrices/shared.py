@@ -21,6 +21,7 @@ def uplo(A, assumptions):
         return 'U'
     if ask(Q.lower_triangular(A), assumptions):
         return 'L'
+    raise ValueError()
 
 def LD(A):
     """ Leading dimension of matrix """
@@ -33,6 +34,7 @@ def left_or_right(A, B, predicate, assumptions):
         return 'L'
     if ask(predicate(B), assumptions):
         return 'R'
+    raise ValueError()
 
 def diag(A, assumptions):
     """ Return 'U' if A is unit_triangular """
@@ -40,3 +42,4 @@ def diag(A, assumptions):
         return 'U'
     else:
         return 'N'
+    raise ValueError()
