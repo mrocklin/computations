@@ -1,7 +1,7 @@
 from sympy.matrices.expressions import MatrixSymbol, Transpose
 from sympy import Symbol, Q
 
-n, k    = 1000, 500 # Symbol('n'), Symbol('k')
+n, k    = Symbol('n'), Symbol('k')
 mu      = MatrixSymbol('mu', n, 1)
 Sigma   = MatrixSymbol('Sigma', n, n)
 H       = MatrixSymbol('H', k, n)
