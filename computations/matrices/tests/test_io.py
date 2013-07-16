@@ -19,7 +19,7 @@ def test_disk_io():
     from sympy import ZeroMatrix
     gemm = GEMM(1, A, B, 0, ZeroMatrix(3, 5))
     filenames = {A: 'A.dat', B: 'B.dat', A*B: 'AB.dat'}
-    io_gemm = disk_io(gemm, filenames)
+    io_gemm = disk_io(gemm, filenames) + gemm
     print io_gemm
     assert not {A, B, A*B}.intersection(io_gemm.inputs)
     assert not {A, B, A*B}.intersection(io_gemm.outputs)

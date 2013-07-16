@@ -1,7 +1,7 @@
 from sympy import Symbol
 from sympy.matrices import MatrixSymbol
 from computations.matrices.core import MatrixCall
-from computations import Computation
+from computations.core import Computation, CompositeComputation
 
 n, m = map(Symbol, 'nm')
 A = MatrixSymbol('A', n, m)
@@ -78,4 +78,4 @@ def disk_io(comp, filenames):
     d = filenames
     reads  = [ReadFromFile(d[i], i) for i in d if i in comp.inputs]
     writes = [WriteToFile(d[o], o) for o in d if o in comp.outputs]
-    return sum(reads + writes, comp)
+    return CompositeComputation(*(reads + writes))

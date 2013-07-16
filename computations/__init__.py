@@ -1,1 +1,1 @@
-from core import Computation
+from core import Computation, CompositeComputation
