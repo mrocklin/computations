@@ -107,14 +107,17 @@ def chunked(seq, n):
     for i in range(0, len(seq), n):
         yield seq[i:i+n]
 
-# http://code.activestate.com/recipes/578231-probably-the-fastest-memoization-decorator-in-the-/
-def memoize(f):
-    class memodict(dict):
-        def __getitem__(self, *key):
-            return dict.__getitem__(self, key)
 
-        def __missing__(self, key):
-            ret = self[key] = f(*key)
-            return ret
+class memoize(object):
+    def __init__(self, f):
+        self.cache = {}
+        self.f = f
 
-    return memodict().__getitem__
+    def key(self, *args, **kwargs):
+        return (tuple(args), frozenset(kwargs.items()))
+
+    def __call__(self, *args, **kwargs):
+        k = self.key(*args, **kwargs)
+        if k not in self.cache:
+            self.cache[k] = self.f(*args, **kwargs)
+        return self.cache[k]

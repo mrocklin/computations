@@ -1,5 +1,5 @@
 from computations.util import (toposort, unique, reverse_dict, merge, groupby,
-        remove, iterable, chunked)
+        remove, iterable, chunked, memoize)
 
 
 def test_unique():
@@ -38,3 +38,18 @@ def test_iterable():
 
 def test_chunked():
     assert list(chunked(range(9), 3)) == [[0, 1, 2], [3, 4, 5], [6, 7, 8]]
+
+def test_memoize():
+    side_effects = []
+    @memoize
+    def f(*args, **kwargs):
+        side_effects.append((args, kwargs))
+        return len(args)
+
+    assert f(5) == 1
+    assert f(5) == 1
+    assert len(side_effects) == 1
+
+    assert f(5, 4, foo=3) == 2
+    assert f(5, 4, foo=3) == 2
+    assert len(side_effects) == 2
