@@ -1,7 +1,7 @@
 from computations.matrices.permutation import PermutationMatrix
 from sympy.matrices import (Matrix, MatrixSymbol, MatMul, ImmutableMatrix,
         MatrixSymbol)
-from sympy import Symbol
+from sympy import Symbol, Q, S, ask
 
 def test_basic():
     assert PermutationMatrix(0, 1).is_Identity
@@ -42,3 +42,11 @@ def test_permutation_permutation_interaction():
     p = Permutation([1, 0, 2])
     P = PermutationMatrix(p)
     assert P.arg == ImmutableMatrix([1, 0, 2]).T
+
+def test_assumptions():
+    n = Symbol('n')
+    A = MatrixSymbol('A', 1, n)
+    P = PermutationMatrix(A)
+    assert ask(Q.integer_elements(P))
+    assert ask(Q.real_elements(P))
+    assert ask(Q.complex_elements(P))

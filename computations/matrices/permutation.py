@@ -58,3 +58,13 @@ class PermutationMatrix(MatrixExpr):
 
     def _entry(self, i, j):
         return 1 if self.arg[i] == j else 0
+
+    def fortran_type(self):
+        return 'integer'
+
+from sympy.assumptions.handlers.matrices import (AskIntegerElementsHandler,
+        AskRealElementsHandler, AskComplexElementsHandler, CommonHandler)
+AskIntegerElementsHandler.PermutationMatrix = \
+        AskRealElementsHandler.PermutationMatrix = \
+        AskComplexElementsHandler.PermutationMatrix = \
+        staticmethod(CommonHandler.AlwaysTrue)
