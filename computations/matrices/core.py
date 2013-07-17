@@ -61,6 +61,10 @@ class MatrixCall(Computation):
     out_types = property(lambda self:
                           tuple(ot or self.basetype for ot in self._out_types))
 
+
+    def _info(self):
+        return type(self), self.args
+
     @classmethod
     def valid(cls, inputs, assumptions=True):
         d = dict(zip(cls._inputs, inputs))
