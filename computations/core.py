@@ -114,7 +114,11 @@ class CompositeComputation(Computation):
         return tuple(unique(chain(*[c.variables for c in self.computations])))
 
     def __str__(self):
-        return "[[" + "\n  ".join(map(str, self.toposort())) + "]]"
+        try:
+            comps = self.toposort()
+        except ValueError:
+            comps = self.computations
+        return "[[" + "\n  ".join(map(str, comps)) + "]]"
 
     def edges(self):
         return chain(*[c.edges() for c in self.computations])
