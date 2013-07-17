@@ -394,4 +394,4 @@ def dimensions(comp):
     are in the set returned by this function """
     shapes = [v.expr.shape for v in comp.variables
                            if isinstance(v.expr, MatrixExpr)]
-    return set((s for shape in shapes for v in shape for s in v.free_symbols))
+    return set([s for shape in shapes for v in shape for s in v.free_symbols])
