@@ -5,7 +5,7 @@ from computations.util import groupby, remove, iterable
 from computations.matrices.fortran.util import (join, is_number, constant_arg,
         update_class)
 from functools import partial
-from sympy import MatrixExpr, Expr, ZeroMatrix, assuming, ask, Q
+from sympy import MatrixExpr, Expr, ZeroMatrix, assuming, ask, Q, Dummy, solve
 import os
 
 import computations
@@ -380,12 +380,23 @@ def explicit_dimension_declaration(dimen):
     return "integer, intent(in) :: %s" % str(dimen)
 
 def dimension_initialization(dimen, var):
-    return str(dimen) + ' = size(%s, %d)'%(var.token,
-            var.expr.shape.index(dimen)+1)
+    name = 'fhsghsf'
+    x = Dummy(name)
+    shape = var.expr.shape
+    if shape[0].has(dimen):
+        idx, d = 0, shape[0]
+    elif shape[1].has(dimen):
+        idx, d = 1, shape[1]
+    else:
+        raise ValueError()
+    expr = solve(d - x, dimen)[0]
+    return (str(dimen) + ' = ' +
+            str(expr).replace(str(x), 'size(%s, %d)'%(var.token, idx+1)))
 
 def var_that_uses_dimension(dimen, vars):
     return next(v for v in vars if isinstance(v.expr, MatrixExpr)
-                               and dimen in v.expr.shape)
+                               and dimen in v.expr.shape
+                                or any(d.has(dimen) for d in v.expr.shape))
 
 def dimensions(comp):
     """ Collect all of the dimensions in a computation

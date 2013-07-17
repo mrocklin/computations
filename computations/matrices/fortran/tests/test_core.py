@@ -3,8 +3,7 @@ from sympy import MatrixSymbol, Symbol, Q
 from computations.inplace import inplace_compile
 from computations.matrices.blas import GEMM, AXPY
 
-n = Symbol('n')
-m = Symbol('m')
+n, m, k, l = map(Symbol, 'nmkl')
 X = MatrixSymbol('X', n, n)
 Y = MatrixSymbol('Y', n, n)
 y = MatrixSymbol('y', n, 1)
@@ -35,6 +34,10 @@ def test_dimensions():
 def test_dimension_initialization():
     assert dimension_initialization(n, ExprToken(y, 'yvar')) == 'n = size(yvar, 1)'
     assert 'n = size(X, 1)' in s or 'n = size(y, 1)' in s
+
+    Z = MatrixSymbol('Z', 2*k, 2*l)
+    assert dimension_initialization(l, ExprToken(Z, 'Z')).replace(' ', '') == \
+            'l=size(Z,2)/2'
 
 def test_variable_declaration():
     s = declare_variable_string('a', Symbol('a'), 'integer', True, False, False)
@@ -124,3 +127,12 @@ def test_nbytes():
 def test_front_flag():
     assert all(front_flag(s) for s in
             ['-lblas', '-L/usr/lib', '-I/usr/include'])
+
+def test_var_that_uses_dimension():
+    X = MatrixSymbol('X', n, n)
+    Y = MatrixSymbol('X', m, k)
+    Z = MatrixSymbol('Z', 2*k, 2*l)
+    ets = ExprToken(X, 'X'), ExprToken(Y, 'Y'), ExprToken(Z, 'Z')
+    assert var_that_uses_dimension(n, ets) == ExprToken(X, 'X')
+    assert var_that_uses_dimension(k, ets) == ExprToken(Y, 'Y')
+    assert var_that_uses_dimension(l, ets) == ExprToken(Z, 'Z')
