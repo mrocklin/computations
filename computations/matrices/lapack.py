@@ -27,6 +27,10 @@ class IPIV(MatrixExpr):
     A = property(lambda self: self.args[0])
     shape = property(lambda self: (S.One, self.A.shape[0]))
 
+    def fortran_type(self):
+        return 'integer'
+
+
 class LAPACK(MatrixCall):
     """ Linear Algebra PACKage - Dense Matrix computation """
     libs = ["lapack"]
