@@ -1,7 +1,7 @@
 from computations.core import Computation
 from computations.matrices.core import MatrixCall
 from sympy.matrices.expressions.hadamard import HadamardProduct
-from sympy import Basic
+from sympy import Basic, MatrixExpr
 
 class ElemProd(MatrixCall):
     @property

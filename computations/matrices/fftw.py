@@ -1,7 +1,7 @@
 from computations.core import Computation
 from computations.matrices.core import MatrixCall
 from sympy.matrices.expressions.fourier import DFT
-from sympy import Basic
+from sympy import Basic, MatrixExpr
 
 '''
 class FFTWPlan(Computation):
@@ -51,6 +51,9 @@ class FFTW(MatrixCall):
                 'call fftw_execute_dft(%(plan_name)s, %(in_name)s, %(out_name)s)' % d,
                 'call fftw_destroy_plan(%(plan_name)s)' % d]
 
+    def typecheck(self):
+        return isinstance(self.args[0], MatrixExpr)
+
 class IFFTW(MatrixCall):
     inplace ={0:0}
 
@@ -80,3 +83,6 @@ class IFFTW(MatrixCall):
                 'call fftw_execute_dft(%(plan_name)s, %(in_name)s, %(out_name)s)' % d,
                 'call fftw_destroy_plan(%(plan_name)s)' % d,
                 '%(out_name)s = %(out_name)s * (1.D0 / %(n)s)' % d]
+
+    def typecheck(self):
+        return isinstance(self.args[0], MatrixExpr)
