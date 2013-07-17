@@ -9,6 +9,7 @@ from sympy.matrices.expressions import (MatrixSymbol, MatrixExpr, MatMul,
 from sympy.matrices.expressions.factorizations import UofCholesky
 from computations.matrices.permutation import PermutationMatrix
 from computations.util import merge
+from computations.core import Computation
 
 A = MatrixSymbol('_A', n, n)
 B = MatrixSymbol('_B', n, m)
@@ -43,7 +44,7 @@ class GESV(LAPACK):
     """ General Matrix Vector Solve """
     __types__ = (MatrixExpr, MatrixExpr)
     _inputs   = (A, B)
-    _outputs  = (PermutationMatrix(IPIV(A.I*B))*A.I*B, IPIV(A.I*B), INFO)
+    _outputs  = (MatMul(PermutationMatrix(IPIV(A.I*B)), A.I, B), IPIV(A.I*B), INFO)
     inplace   = {0: 1}
     condition = True  # TODO: maybe require S to be invertible?
 
@@ -71,11 +72,40 @@ class GESV(LAPACK):
         result, ipiv, info = outputs_names
         return ["%(B)s := %(A)s\%(B)s permuted by %(ipiv)s" % locals()]
 
+    @property
+    def inputs(self):
+        return self.args
+
+    @property
+    def outputs(self):
+        A, B = self.args
+        return (MatMul(PermutationMatrix(IPIV(MatMul(Inverse(A), B))),  Inverse(A), B),
+                IPIV(MatMul(Inverse(A), B)),
+                INFO)
+
+class GESVLASWP(Computation):
+    __types__ = [MatrixExpr, MatrixExpr]
+    condition = True
+    inplace   = {0: 1}
+
+    def __init__(self, A, B):
+        self.inputs = (A, B)
+        self.outputs = (MatMul(Inverse(A), B), IPIV(A), INFO)
+
+    def fortran_call(self, input_names, output_names):
+        A, B = self.inputs
+        PA, IPIV, INFO = self.outputs
+        a, b = input_names
+        pa, ipiv, info = output_names
+
+        return (GESV(A, B).fortran_call(input_names, [res, ipiv, info]) +
+                LASWP(PA, IPIV).fortran_call([pa, ipiv], [pa]))
+
 
 class LASWP(LAPACK):
     """ Permute rows in a matrix """
     __types__ = (MatMul, PermutationMatrix)
-    _inputs   = (PermutationMatrix(IPIV(A))*A, IPIV(A))
+    _inputs   = (MatMul(PermutationMatrix(IPIV(A)), A), IPIV(A))
     _outputs  = (A,)
     inplace   = {0: 0}
     condition = True
@@ -83,6 +113,16 @@ class LASWP(LAPACK):
 
     fortran_template = ("call %(fn)s(%(N)s, %(A)s, %(LDA)s, %(K1)s, %(K2)s, "
                         "%(IPIV)s, %(INCX)s)")
+
+    @property
+    def inputs(self):
+        return self.args
+
+    @property
+    def outputs(self):
+        PA, IP = self.args
+        A = MatMul(*PA.args[1:])
+        return (A,)
 
     def codemap(self, names, assumptions=()):
         varnames = 'A IPIV'.split()
