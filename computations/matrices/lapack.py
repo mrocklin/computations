@@ -25,7 +25,7 @@ class IPIV(MatrixExpr):
         return Basic.__new__(cls, A)
 
     A = property(lambda self: self.args[0])
-    shape = property(lambda self: (1, self.A.shape[0]))
+    shape = property(lambda self: (S.One, self.A.shape[0]))
 
 class LAPACK(MatrixCall):
     """ Linear Algebra PACKage - Dense Matrix computation """
