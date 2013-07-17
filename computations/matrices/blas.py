@@ -103,6 +103,8 @@ class SYMM(MM):
     def codemap(self, names, assumptions=True):
         varnames = 'alpha A B beta C'.split()
         alpha, A, B, beta, C = self.args
+        if not C:
+            C = ZeroMatrix(A.rows, B.cols)
         side = left_or_right(A, B, Q.symmetric, assumptions)
         if side == 'R':
             A, B = B, A
