@@ -4,7 +4,8 @@ from computations.matrices.shared import (detranspose, trans, LD,
 from computations.matrices.variables import (alpha, beta, n, m, k, C,
         x, a, b)
 from sympy import Q, S, Symbol, Basic
-from sympy.matrices.expressions import MatrixSymbol, MatrixExpr, MatMul
+from sympy.matrices.expressions import (MatrixSymbol, MatrixExpr, MatMul,
+        Inverse)
 from sympy.matrices.expressions.factorizations import UofCholesky
 from computations.matrices.permutation import PermutationMatrix
 from computations.util import merge
@@ -35,8 +36,12 @@ class LAPACK(MatrixCall):
     """ Linear Algebra PACKage - Dense Matrix computation """
     libs = ["lapack"]
 
+    def typecheck(self):
+        return all(map(isinstance, self.args, self.__types__))
+
 class GESV(LAPACK):
     """ General Matrix Vector Solve """
+    __types__ = (MatrixExpr, MatrixExpr)
     _inputs   = (A, B)
     _outputs  = (PermutationMatrix(IPIV(A.I*B))*A.I*B, IPIV(A.I*B), INFO)
     inplace   = {0: 1}
@@ -69,6 +74,7 @@ class GESV(LAPACK):
 
 class LASWP(LAPACK):
     """ Permute rows in a matrix """
+    __types__ = (MatMul, PermutationMatrix)
     _inputs   = (PermutationMatrix(IPIV(A))*A, IPIV(A))
     _outputs  = (A,)
     inplace   = {0: 0}
@@ -102,6 +108,7 @@ class LASWP(LAPACK):
 
 class POSV(LAPACK):
     """ Symmetric Positive Definite Matrix Solve """
+    __types__ = (MatrixExpr, MatrixExpr)
     _inputs   = (A, B)
     _outputs  = (A.I*B, UofCholesky(A), INFO)
     inplace   = {0: 1, 1: 0}
@@ -134,6 +141,7 @@ class POSV(LAPACK):
                 "%(A)s := Cholesky Decomposition of %(A)s" % locals()]
 
 class POTRS(LAPACK):
+    __types__ = (MatrixExpr, MatrixExpr)
     _inputs =  (UofCholesky(A), B)
     _outputs = (A.I*B, INFO)
     inplace = {0: 1}

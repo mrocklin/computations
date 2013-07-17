@@ -19,7 +19,5 @@ class ElemProd(MatrixCall):
         return ['%(out_name)s = %(in_name_1)s * %(in_name_2)s '% d ]
 
     def typecheck(self):
-        if not (isinstance(self.args[0], MatrixExpr)
-            and isinstance(self.args[1], MatrixExpr)):
-            raise TypeError()
-
+        return (isinstance(self.args[0], MatrixExpr)
+            and isinstance(self.args[1], MatrixExpr))

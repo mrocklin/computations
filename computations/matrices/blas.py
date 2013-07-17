@@ -6,7 +6,7 @@ from computations.matrices.shared import (detranspose, trans, LD,
         left_or_right, diag)
 from computations.matrices.variables import (alpha, beta, n, m, k, A, B, C, D,
         x, a, b, X, Y)
-from sympy import Q, S
+from sympy import Q, S, Expr, MatrixExpr
 from sympy.utilities.iterables import dict_merge as merge
 from sympy.matrices.expressions import ZeroMatrix, Transpose
 
@@ -14,12 +14,16 @@ class BLAS(MatrixCall):
     """ Basic Linear Algebra Subroutine - Dense Matrix computation """
     libs = ["blas"]
     def cuda_use_statements(self):
-      return ["cublasHandle_t handle;"] 
+      return ["cublasHandle_t handle;"]
 
     def cuda_include_statements(self):
       return ['#include <cuda_runtime.h>', '#include "cublas_v2.h"']
 
+    def typecheck(self):
+        return all(map(isinstance, self.args, self.__types__))
 
+
+scalar = (Expr, int, float)
 class MM(BLAS):
     """ Matrix Multiply """
     def __init__(self, alpha, A, B, beta, C, typecode='D'):
@@ -30,6 +34,7 @@ class MM(BLAS):
 
         super(MM, self).__init__(alpha, A, B, beta, C, typecode)
 
+    __types__ = [scalar, MatrixExpr, MatrixExpr, scalar, object]
     _inputs   = (alpha, A, B, beta, C)
     _outputs  = (alpha*A*B + beta*C,)
     inplace   = {0: 4}
@@ -82,7 +87,7 @@ class GEMM(MM):
                         "%(M)s, %(N)s, %(K)s, "
                         "%(alpha)s, %(A)s, %(LDA)s, "
                         "%(B)s, %(LDB)s, %(beta)s, %(C)s, %(LDC)s)")
-    
+
     cuda_template = ("cublas%(fn)s(handle, '%(TRANSA)s', '%(TRANSB)s', "
                         "%(M)s, %(N)s, %(K)s, "
                         "%(alpha)s, %(A)s, %(LDA)s, "
@@ -116,6 +121,7 @@ class SYMM(MM):
 
 class AXPY(BLAS):
     """ Matrix Matrix Addition `alpha X + Y` """
+    __types__ = [scalar, MatrixExpr, MatrixExpr]
     _inputs   = (alpha, X, Y)
     _outputs  = (alpha*X + Y,)
     inplace   = {0: 2}
@@ -150,6 +156,7 @@ class SYRK(BLAS):
 
         return super(SYRK, self).__init__(alpha, A, beta, D, typecode)
 
+    __types__ = [scalar, MatrixExpr, object, object]
     _inputs = (alpha, A, beta, D)
     _outputs = (alpha * A * A.T + beta * D,)
     inplace  = {0:3}
@@ -195,6 +202,7 @@ class SYRK(BLAS):
 
 class COPY(BLAS, Copy):
     """ Array to array copy """
+    __types__ = [MatrixExpr, MatrixExpr]
     _inputs   = (X,)
     _outputs  = (X,)
 

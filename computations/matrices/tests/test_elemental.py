@@ -21,4 +21,3 @@ def test_ElemProd_code():
     with open('tmp/elem_test.f90','w') as f:
         f.write(s)
     assert "= X * Y" in s
-
