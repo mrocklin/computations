@@ -16,6 +16,7 @@ subroutine %(subroutine_header)s
 ! ===================== !
 %(variable_declarations)s
 !  real(kind=8) :: starttime, endtime
+!  integer :: ierr
 
   interface
 %(function_interfaces)s
@@ -32,6 +33,7 @@ subroutine %(subroutine_header)s
 ! Statements !
 ! ========== !
 
+!   call MPI_barrier(MPI_COMM_WORLD, ierr)
 !   starttime = MPI_Wtime()
 %(statements)s
 !  endtime   = MPI_Wtime()
