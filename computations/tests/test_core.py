@@ -65,6 +65,9 @@ def test_rm_identity():
     I3 = Identity(e)
     assert I2 + A == I3 + A
 
+    B = Computation((c,), (e,))
+    assert (A + I3) + B == A + B
+
 def test_composite_with_identity_inputs():
     A =  Computation((d,), (f,))
     I = Identity(c)

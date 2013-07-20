@@ -87,19 +87,22 @@ class GESVLASWP(Computation):
     __types__ = [MatrixExpr, MatrixExpr]
     condition = True
     inplace   = {0: 1}
+    libs = ["lapack"]
 
     def __init__(self, A, B):
         self.inputs = (A, B)
-        self.outputs = (MatMul(Inverse(A), B), IPIV(A), INFO)
+        self.outputs = (MatMul(Inverse(A), B), IPIV(A.I*B), INFO)
 
     def fortran_call(self, input_names, output_names):
         A, B = self.inputs
-        PA, IPIV, INFO = self.outputs
+        PA = PermutationMatrix(IPIV(A.I*B))*A.I*B
+
+        _, IPIV_, INFO = self.outputs
         a, b = input_names
         pa, ipiv, info = output_names
 
-        return (GESV(A, B).fortran_call(input_names, [res, ipiv, info]) +
-                LASWP(PA, IPIV).fortran_call([pa, ipiv], [pa]))
+        return (GESV(A, B).fortran_call(input_names, (pa, ipiv, info)) +
+                LASWP(PA, IPIV_).fortran_call((pa, ipiv), (pa,)))
 
 
 class LASWP(LAPACK):

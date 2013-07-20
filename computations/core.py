@@ -75,8 +75,8 @@ class CompositeComputation(Computation):
 
     def __new__(cls, *computations):
         computations = tuple(unique(computations))
-        computations = exhaust(rm_identity)(computations)
         computations = exhaust(flatten)(computations)
+        computations = exhaust(rm_identity)(computations)
         if len(computations) == 1:
             return computations[0]
         else:
