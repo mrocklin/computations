@@ -145,6 +145,8 @@ def tokenize_one(mathcomp, tokenizer):
     See Also
         tokenize
     """
+    if isinstance(mathcomp, TokenComputation):
+        return mathcomp
     return TokenComputation(mathcomp, map(tokenizer, mathcomp.inputs),
                              map(tokenizer, mathcomp.outputs))
 

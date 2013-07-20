@@ -45,6 +45,11 @@ def test_tokenize_one():
     assert comp.inputs[0].expr == 3
     assert comp.outputs[0].expr == 4
 
+def test_idempotence():
+    c = inc(3) + inc(4)
+    assert tokenize(tokenize(c)) == tokenize(c)
+    assert inplace_compile(inplace_compile(c)) == inplace_compile(c)
+
 def test_tokenize():
     comp = tokenize(inc(3), make_getname())
     assert comp.op == inc
