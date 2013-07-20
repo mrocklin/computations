@@ -314,8 +314,8 @@ def irecv(from_machine, to_machine, from_job, to_job, tokenizer=None):
 
 
 def mpi_key(c):
-    if isinstance(c, Wait):         return +1
-    elif isinstance(c, MPI):        return -1
+    if isinstance(c, Wait):         return -1
+    elif isinstance(c, MPI):        return +1
     else:                           return  0
 
 def mpi_tag_key(c):
