@@ -219,4 +219,4 @@ class POTRS(LAPACK):
 
     def pseudocode_call(self, inputs_names, outputs_names):
         A, B = inputs_names
-        return ["%(B)s := %(A)s\%(B)s (B is Cholesky factor) " % locals()]
+        return ["%(B)s := %(A)s\%(B)s (%(B)s is Cholesky factor) " % locals()]
